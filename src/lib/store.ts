@@ -42,6 +42,10 @@ function normalizeUser(u: User & Record<string, unknown>): User {
     planStatus: (u.planStatus as User["planStatus"]) || "trialing",
     createdAt: u.createdAt,
     manualPayInstructions: u.manualPayInstructions as string | undefined,
+    stripeAccountId: (u.stripeAccountId as string | undefined) || undefined,
+    stripeChargesEnabled: Boolean(u.stripeChargesEnabled),
+    stripeDetailsSubmitted: Boolean(u.stripeDetailsSubmitted),
+    stripePayoutsEnabled: Boolean(u.stripePayoutsEnabled),
   };
 }
 
@@ -95,6 +99,10 @@ type AccountRow = {
   plan_status: string;
   created_at: string | Date;
   manual_pay_instructions: string | null;
+  stripe_connect_account_id?: string | null;
+  stripe_charges_enabled?: boolean | null;
+  stripe_details_submitted?: boolean | null;
+  stripe_payouts_enabled?: boolean | null;
 };
 
 type QuoteRow = {
@@ -154,6 +162,10 @@ function accountToUser(r: AccountRow): User {
     planStatus: r.plan_status as User["planStatus"],
     createdAt: iso(r.created_at) || new Date().toISOString(),
     manualPayInstructions: r.manual_pay_instructions ?? undefined,
+    stripeAccountId: r.stripe_connect_account_id ?? undefined,
+    stripeChargesEnabled: Boolean(r.stripe_charges_enabled),
+    stripeDetailsSubmitted: Boolean(r.stripe_details_submitted),
+    stripePayoutsEnabled: Boolean(r.stripe_payouts_enabled),
   });
 }
 
@@ -258,7 +270,9 @@ export async function createUser(user: User): Promise<User> {
     insert into accounts (
       id, email, password_hash, business_name, phone, country,
       default_currency, default_locale, plan, plan_status,
-      created_at, manual_pay_instructions
+      created_at, manual_pay_instructions,
+      stripe_connect_account_id, stripe_charges_enabled,
+      stripe_details_submitted, stripe_payouts_enabled
     ) values (
       ${user.id},
       ${user.email},
@@ -271,10 +285,59 @@ export async function createUser(user: User): Promise<User> {
       ${user.plan},
       ${user.planStatus},
       ${user.createdAt},
-      ${user.manualPayInstructions ?? null}
+      ${user.manualPayInstructions ?? null},
+      ${user.stripeAccountId ?? null},
+      ${user.stripeChargesEnabled ?? false},
+      ${user.stripeDetailsSubmitted ?? false},
+      ${user.stripePayoutsEnabled ?? false}
     )
   `;
   return user;
+}
+
+export async function updateUser(user: User): Promise<User> {
+  if (!usePostgres()) {
+    const users = await readJson<User[]>("users.json", []);
+    const i = users.findIndex((u) => u.id === user.id);
+    if (i >= 0) users[i] = user;
+    else users.push(user);
+    await writeJson("users.json", users);
+    return user;
+  }
+  const sql = getSql();
+  await sql`
+    update accounts set
+      business_name = ${user.businessName},
+      phone = ${user.phone ?? null},
+      country = ${user.country},
+      default_currency = ${user.defaultCurrency},
+      default_locale = ${user.defaultLocale},
+      plan = ${user.plan},
+      plan_status = ${user.planStatus},
+      manual_pay_instructions = ${user.manualPayInstructions ?? null},
+      stripe_connect_account_id = ${user.stripeAccountId ?? null},
+      stripe_charges_enabled = ${user.stripeChargesEnabled ?? false},
+      stripe_details_submitted = ${user.stripeDetailsSubmitted ?? false},
+      stripe_payouts_enabled = ${user.stripePayoutsEnabled ?? false}
+    where id = ${user.id}
+  `;
+  return user;
+}
+
+export async function findUserByStripeAccountId(
+  accountId: string
+): Promise<User | undefined> {
+  if (!usePostgres()) {
+    const users = await readJson<(User & Record<string, unknown>)[]>("users.json", []);
+    return users.map(normalizeUser).find((u) => u.stripeAccountId === accountId);
+  }
+  const sql = getSql();
+  const rows = (await sql`
+    select * from accounts
+    where stripe_connect_account_id = ${accountId}
+    limit 1
+  `) as AccountRow[];
+  return rows[0] ? accountToUser(rows[0]) : undefined;
 }
 
 /** @deprecated prefer createUser — kept for JSON path compatibility */

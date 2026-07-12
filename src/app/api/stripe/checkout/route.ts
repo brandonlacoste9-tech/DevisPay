@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getStripe } from "@/lib/stripe";
-import { findQuoteByToken, upsertQuote } from "@/lib/store";
-import { isPaidStatus } from "@/lib/types";
+import { findQuoteByToken, findUserById, upsertQuote } from "@/lib/store";
+import { canAcceptCardPayments, isPaidStatus } from "@/lib/types";
+import { platformFeeCents } from "@/lib/connect";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,6 +45,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Deposit too small for card" }, { status: 400 });
   }
 
+  const seller = await findUserById(quote.userId);
+  if (!canAcceptCardPayments(seller)) {
+    return NextResponse.json(
+      {
+        error: "Seller has not connected Stripe yet",
+        code: "CONNECT_REQUIRED",
+        message:
+          "This business must finish Stripe Connect setup before accepting card deposits. Try bank/Interac if offered, or contact them.",
+      },
+      { status: 403 }
+    );
+  }
+
   const origin =
     req.headers.get("origin") ||
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -61,36 +75,62 @@ export async function POST(req: NextRequest) {
         : `Deposit — ${quote.title}`;
   const totalLabel = `${(quote.totalCents / 100).toFixed(2)} ${currency.toUpperCase()}`;
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    customer_email: quote.customerEmail,
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency,
-          unit_amount: quote.depositAmountCents,
-          product_data: {
-            name: depositLabel,
-            description: fr
-              ? `Acompte sur total ${totalLabel}`
-              : `Deposit on total ${totalLabel}`,
+  const fee = platformFeeCents(quote.depositAmountCents);
+  const connectedId = seller!.stripeAccountId!;
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer_email: quote.customerEmail,
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency,
+            unit_amount: quote.depositAmountCents,
+            product_data: {
+              name: depositLabel,
+              description: fr
+                ? `Acompte sur total ${totalLabel}`
+                : `Deposit on total ${totalLabel}`,
+            },
           },
         },
+      ],
+      success_url: `${origin}/q/${quote.publicToken}?paid=1`,
+      cancel_url: `${origin}/q/${quote.publicToken}?canceled=1`,
+      payment_intent_data: {
+        // Money lands on the seller's connected Stripe account (not the platform)
+        transfer_data: {
+          destination: connectedId,
+        },
+        ...(fee > 0 ? { application_fee_amount: fee } : {}),
+        metadata: {
+          type: "deposit",
+          quote_id: quote.id,
+          public_token: quote.publicToken,
+          connected_account: connectedId,
+        },
       },
-    ],
-    success_url: `${origin}/q/${quote.publicToken}?paid=1`,
-    cancel_url: `${origin}/q/${quote.publicToken}?canceled=1`,
-    metadata: {
-      type: "deposit",
-      quote_id: quote.id,
-      public_token: quote.publicToken,
-    },
-  });
+      metadata: {
+        type: "deposit",
+        quote_id: quote.id,
+        public_token: quote.publicToken,
+        connected_account: connectedId,
+      },
+    });
 
-  quote.stripeSessionId = session.id;
-  quote.updatedAt = new Date().toISOString();
-  await upsertQuote(quote);
+    quote.stripeSessionId = session.id;
+    quote.updatedAt = new Date().toISOString();
+    await upsertQuote(quote);
 
-  return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    console.error("[checkout connect]", err);
+    const message = err instanceof Error ? err.message : "Checkout failed";
+    return NextResponse.json(
+      { error: "Checkout failed", message, code: "CHECKOUT_ERROR" },
+      { status: 500 }
+    );
+  }
 }

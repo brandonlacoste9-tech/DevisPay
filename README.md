@@ -67,8 +67,17 @@ DATABASE_URL=postgresql://...@...neon.tech/neondb?sslmode=require
 
 5. Stripe webhook endpoint:  
    `https://devispay.com/api/stripe/webhook`  
-   Event: `checkout.session.completed`  
-6. Trigger a redeploy after env / domain changes.
+   Events:  
+   - `checkout.session.completed`  
+   - `account.updated` (Stripe Connect)  
+6. Stripe Dashboard → **Settings → Connect** → enable Connect (Express)  
+7. Trigger a redeploy after env / domain changes.
+
+### Stripe Connect (each company gets paid)
+
+Businesses connect **their own** Stripe once (Dashboard → Connect with Stripe).  
+Card deposits use `transfer_data.destination` → money goes to **their** Connect account.  
+Platform never manually sends payouts. Optional fee: `STRIPE_PLATFORM_FEE_BPS`.
 
 ## Neon (Postgres) — production data
 

@@ -18,11 +18,29 @@ type QuoteRow = {
   createdAt: string;
 };
 
+type ConnectStatus = {
+  connected: boolean;
+  chargesEnabled: boolean;
+  detailsSubmitted: boolean;
+  payoutsEnabled: boolean;
+  ready: boolean;
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   const [copied, setCopied] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [connect, setConnect] = useState<ConnectStatus | null>(null);
+  const [connectBusy, setConnectBusy] = useState(false);
+  const [connectMsg, setConnectMsg] = useState("");
+
+  const loadConnect = useCallback(async () => {
+    const res = await fetch("/api/stripe/connect");
+    if (res.ok) {
+      setConnect(await res.json());
+    }
+  }, []);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/quotes");
@@ -37,7 +55,34 @@ export default function DashboardPage() {
 
   useEffect(() => {
     load();
-  }, [load]);
+    loadConnect();
+    if (typeof window !== "undefined") {
+      const q = new URLSearchParams(window.location.search);
+      if (q.get("connect") === "return" || q.get("connect") === "refresh") {
+        void fetch("/api/stripe/connect/refresh", { method: "POST" }).then(() =>
+          loadConnect()
+        );
+      }
+    }
+  }, [load, loadConnect]);
+
+  async function startConnect() {
+    setConnectBusy(true);
+    setConnectMsg("");
+    try {
+      const res = await fetch("/api/stripe/connect", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setConnectMsg(data.detail || data.error || "Could not start Connect");
+        return;
+      }
+      if (data.url) window.location.href = data.url as string;
+    } catch {
+      setConnectMsg("Network error");
+    } finally {
+      setConnectBusy(false);
+    }
+  }
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -85,11 +130,52 @@ export default function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        {/* Stripe Connect */}
+        {connect && !connect.ready && (
+          <div className="mb-8 rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-400">
+              Stripe Connect
+            </p>
+            <h2 className="dp-display mt-2 text-xl font-bold text-white">
+              Connect your own Stripe to get paid
+            </h2>
+            <p className="mt-2 max-w-xl text-sm text-zinc-400">
+              Card deposits go to <strong className="text-zinc-200">your</strong>{" "}
+              Stripe account — not ours. Complete onboarding once; then every pay
+              link is automatic. (Bank payouts still follow Stripe&apos;s schedule.)
+            </p>
+            <button
+              type="button"
+              disabled={connectBusy}
+              onClick={startConnect}
+              className="dp-btn-primary mt-5 !rounded-2xl disabled:opacity-60"
+            >
+              {connectBusy
+                ? "…"
+                : connect.connected
+                  ? "Continue Stripe setup"
+                  : "Connect with Stripe"}
+            </button>
+            {connectMsg && (
+              <p className="mt-3 text-sm text-red-400">{connectMsg}</p>
+            )}
+          </div>
+        )}
+
+        {connect?.ready && (
+          <div className="mb-8 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-5 py-3 text-sm">
+            <span className="font-semibold text-emerald-400">✓ Stripe connected</span>
+            <span className="text-zinc-500">
+              Card deposits go to your account automatically.
+            </span>
+          </div>
+        )}
+
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="dp-display text-3xl font-bold text-white">Dashboard</h1>
             <p className="mt-1 text-sm text-zinc-500">
-              Create a quote → share link → collect deposit.
+              Create a quote → share link → client pays your Stripe.
             </p>
           </div>
           {!loading && quotes.length > 0 && (
@@ -112,8 +198,7 @@ export default function DashboardPage() {
           <div className="dp-glass mt-12 rounded-3xl border-dashed p-14 text-center">
             <p className="dp-display text-xl font-bold text-white">No quotes yet</p>
             <p className="mx-auto mt-2 max-w-sm text-sm text-zinc-500">
-              Your first paid deposit is one link away. Create a professional quote
-              in under a minute.
+              Connect Stripe, then create a professional quote in under a minute.
             </p>
             <Link
               href="/dashboard/new"

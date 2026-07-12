@@ -19,6 +19,11 @@ create table if not exists accounts (
     check (plan_status in ('trialing','active','past_due','canceled')),
   stripe_customer_id text,
   stripe_subscription_id text,
+  /** Stripe Connect Express account id (acct_…) */
+  stripe_connect_account_id text unique,
+  stripe_charges_enabled boolean not null default false,
+  stripe_details_submitted boolean not null default false,
+  stripe_payouts_enabled boolean not null default false,
   quotes_this_month int not null default 0,
   quotes_month text,
   brand_logo_url text,

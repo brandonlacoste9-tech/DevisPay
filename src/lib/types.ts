@@ -16,6 +16,12 @@ export type User = {
   createdAt: string;
   /** Optional Interac / bank instructions shown on public quotes */
   manualPayInstructions?: string;
+  /** Stripe Connect Express account (acct_…) */
+  stripeAccountId?: string;
+  /** Can accept charges (from Stripe account.updated) */
+  stripeChargesEnabled?: boolean;
+  stripeDetailsSubmitted?: boolean;
+  stripePayoutsEnabled?: boolean;
 };
 
 export type LineItem = {
@@ -63,4 +69,9 @@ export type Quote = {
 /** Back-compat: old status name */
 export function isPaidStatus(status: string): boolean {
   return status === "paid" || status === "deposit_paid";
+}
+
+/** Seller ready to accept card deposits into their own Stripe */
+export function canAcceptCardPayments(user: User | undefined | null): boolean {
+  return Boolean(user?.stripeAccountId && user.stripeChargesEnabled);
 }
