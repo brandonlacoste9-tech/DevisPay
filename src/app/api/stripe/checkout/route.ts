@@ -10,6 +10,10 @@ export const dynamic = "force-dynamic";
 
 const Body = z.object({ token: z.string().min(8) });
 
+/**
+ * Direct charges on the seller's connected account (matches Connect platform setup).
+ * Buyer pays the connected business; optional application_fee to the platform.
+ */
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
   if (!stripe) {
@@ -79,32 +83,37 @@ export async function POST(req: NextRequest) {
   const connectedId = seller!.stripeAccountId!;
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: quote.customerEmail,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency,
-            unit_amount: quote.depositAmountCents,
-            product_data: {
-              name: depositLabel,
-              description: fr
-                ? `Acompte sur total ${totalLabel}`
-                : `Deposit on total ${totalLabel}`,
+    // Direct charge: session is created ON the connected account
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        customer_email: quote.customerEmail,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency,
+              unit_amount: quote.depositAmountCents,
+              product_data: {
+                name: depositLabel,
+                description: fr
+                  ? `Acompte sur total ${totalLabel}`
+                  : `Deposit on total ${totalLabel}`,
+              },
             },
           },
+        ],
+        success_url: `${origin}/q/${quote.publicToken}?paid=1`,
+        cancel_url: `${origin}/q/${quote.publicToken}?canceled=1`,
+        payment_intent_data: {
+          ...(fee > 0 ? { application_fee_amount: fee } : {}),
+          metadata: {
+            type: "deposit",
+            quote_id: quote.id,
+            public_token: quote.publicToken,
+            connected_account: connectedId,
+          },
         },
-      ],
-      success_url: `${origin}/q/${quote.publicToken}?paid=1`,
-      cancel_url: `${origin}/q/${quote.publicToken}?canceled=1`,
-      payment_intent_data: {
-        // Money lands on the seller's connected Stripe account (not the platform)
-        transfer_data: {
-          destination: connectedId,
-        },
-        ...(fee > 0 ? { application_fee_amount: fee } : {}),
         metadata: {
           type: "deposit",
           quote_id: quote.id,
@@ -112,13 +121,10 @@ export async function POST(req: NextRequest) {
           connected_account: connectedId,
         },
       },
-      metadata: {
-        type: "deposit",
-        quote_id: quote.id,
-        public_token: quote.publicToken,
-        connected_account: connectedId,
-      },
-    });
+      {
+        stripeAccount: connectedId,
+      }
+    );
 
     quote.stripeSessionId = session.id;
     quote.updatedAt = new Date().toISOString();
@@ -126,7 +132,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
-    console.error("[checkout connect]", err);
+    console.error("[checkout connect direct]", err);
     const message = err instanceof Error ? err.message : "Checkout failed";
     return NextResponse.json(
       { error: "Checkout failed", message, code: "CHECKOUT_ERROR" },

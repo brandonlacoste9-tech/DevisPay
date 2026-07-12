@@ -76,8 +76,12 @@ DATABASE_URL=postgresql://...@...neon.tech/neondb?sslmode=require
 ### Stripe Connect (each company gets paid)
 
 Businesses connect **their own** Stripe once (Dashboard → Connect with Stripe).  
-Card deposits use `transfer_data.destination` → money goes to **their** Connect account.  
-Platform never manually sends payouts. Optional fee: `STRIPE_PLATFORM_FEE_BPS`.
+**Direct charges** on the connected account (`stripeAccount`) — matches Stripe platform setup.  
+Money + Stripe fees land on the seller; optional platform fee: `STRIPE_PLATFORM_FEE_BPS`.
+
+Webhook: listen to **events on Connected accounts** as well (Dashboard → endpoint →  
+“Listen to events on Connected accounts”), events:  
+`checkout.session.completed`, `account.updated`.
 
 ## Neon (Postgres) — production data
 
