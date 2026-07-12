@@ -1,5 +1,7 @@
 # DevisPay (global)
 
+**Brand:** DevisPay · **Domain:** [devispay.com](https://devispay.com)
+
 **Pay this quote. Venmo-simple. Not a bank.**
 
 Create a professional quote → share one link → customer pays deposit by **card (Stripe)** or **bank/Interac** (seller marks paid).
@@ -48,7 +50,7 @@ pnpm dev
 ## Env
 
 ```env
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+NEXT_PUBLIC_SITE_URL=https://devispay.com
 SESSION_SECRET=long-random
 STRIPE_SECRET_KEY=sk_...
 STRIPE_WEBHOOK_SECRET=whsec_...
