@@ -46,6 +46,9 @@ export default function NewQuotePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [payUrl, setPayUrl] = useState("");
+  const [quoteToken, setQuoteToken] = useState("");
+  const [emailing, setEmailing] = useState(false);
+  const [emailMsg, setEmailMsg] = useState("");
 
   const total = useMemo(
     () =>
@@ -169,10 +172,38 @@ export default function NewQuotePage() {
         return;
       }
       setPayUrl(data.payUrl as string);
+      const token =
+        (data.quote?.publicToken as string) ||
+        String(data.payUrl || "").split("/q/")[1] ||
+        "";
+      setQuoteToken(token);
     } catch {
       setError("Network error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function emailPayLink() {
+    if (!quoteToken) return;
+    setEmailing(true);
+    setEmailMsg("");
+    try {
+      const res = await fetch(`/api/quotes/${quoteToken}/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "pay_link", to: customerEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailMsg(data.message || data.error || "Email failed");
+        return;
+      }
+      setEmailMsg(`Sent to ${data.to}`);
+    } catch {
+      setEmailMsg("Network error");
+    } finally {
+      setEmailing(false);
     }
   }
 
@@ -201,6 +232,17 @@ export default function NewQuotePage() {
           >
             Copy link
           </button>
+          <button
+            type="button"
+            disabled={emailing || !quoteToken}
+            onClick={() => void emailPayLink()}
+            className="dp-btn-ghost mt-3 w-full !rounded-2xl disabled:opacity-50"
+          >
+            {emailing ? "Sending…" : `Email link to ${customerEmail}`}
+          </button>
+          {emailMsg && (
+            <p className="mt-3 text-sm text-zinc-400">{emailMsg}</p>
+          )}
           <Link
             href="/dashboard"
             className="mt-6 inline-block text-sm text-zinc-500 hover:text-white"

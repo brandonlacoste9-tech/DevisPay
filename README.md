@@ -103,7 +103,16 @@ SESSION_SECRET=long-random
 STRIPE_SECRET_KEY=sk_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 DATABASE_URL=postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require
+RESEND_API_KEY=re_...
+EMAIL_FROM=DevisPay <noreply@devispay.com>
 ```
+
+### Email (Resend)
+
+1. Create account at [resend.com](https://resend.com)  
+2. API key → Netlify `RESEND_API_KEY`  
+3. Verify domain for production, or use `EMAIL_FROM=DevisPay <onboarding@resend.dev>` for tests  
+4. Features: **Email link** / **Email receipt** on dashboard; auto receipt on card/manual paid
 
 Webhook: `POST /api/stripe/webhook` · event `checkout.session.completed`
 

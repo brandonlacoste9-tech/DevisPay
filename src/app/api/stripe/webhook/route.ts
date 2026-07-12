@@ -3,11 +3,13 @@ import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import {
   findQuoteById,
+  findUserById,
   findUserByStripeAccountId,
   updateUser,
   upsertQuote,
 } from "@/lib/store";
 import { isPaidStatus } from "@/lib/types";
+import { isEmailConfigured, sendReceiptEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,6 +51,17 @@ export async function POST(req: NextRequest) {
                 : session.payment_intent?.id;
             quote.updatedAt = new Date().toISOString();
             await upsertQuote(quote);
+
+            // Auto receipt email (best-effort)
+            if (isEmailConfigured()) {
+              const business = await findUserById(quote.userId);
+              if (business) {
+                const mailed = await sendReceiptEmail({ quote, business });
+                if (!mailed.ok) {
+                  console.error("[webhook receipt email]", mailed.error);
+                }
+              }
+            }
           }
         }
       }

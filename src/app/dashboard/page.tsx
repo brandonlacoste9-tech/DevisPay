@@ -34,6 +34,8 @@ export default function DashboardPage() {
   const [connect, setConnect] = useState<ConnectStatus | null>(null);
   const [connectBusy, setConnectBusy] = useState(false);
   const [connectMsg, setConnectMsg] = useState("");
+  const [emailing, setEmailing] = useState<string | null>(null);
+  const [emailFlash, setEmailFlash] = useState<string | null>(null);
 
   const loadConnect = useCallback(async () => {
     const res = await fetch("/api/stripe/connect");
@@ -94,6 +96,33 @@ export default function DashboardPage() {
     void navigator.clipboard.writeText(url);
     setCopied(token);
     setTimeout(() => setCopied(null), 2000);
+  }
+
+  async function emailQuote(token: string, type: "pay_link" | "receipt") {
+    setEmailing(token + type);
+    setEmailFlash(null);
+    try {
+      const res = await fetch(`/api/quotes/${token}/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailFlash(data.message || data.error || "Email failed");
+        return;
+      }
+      setEmailFlash(
+        type === "receipt"
+          ? `Receipt sent to ${data.to}`
+          : `Pay link sent to ${data.to}`
+      );
+      setTimeout(() => setEmailFlash(null), 4000);
+    } catch {
+      setEmailFlash("Network error sending email");
+    } finally {
+      setEmailing(null);
+    }
   }
 
   const statusLabel: Record<string, string> = {
@@ -198,6 +227,12 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {emailFlash && (
+          <p className="mb-4 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300">
+            {emailFlash}
+          </p>
+        )}
+
         {loading ? (
           <div className="mt-16 text-center text-sm text-zinc-600">Loading…</div>
         ) : quotes.length === 0 ? (
@@ -279,6 +314,23 @@ export default function DashboardPage() {
                         Receipt
                       </a>
                     )}
+                    <button
+                      type="button"
+                      disabled={emailing === q.publicToken + (paid ? "receipt" : "pay_link")}
+                      onClick={() =>
+                        void emailQuote(
+                          q.publicToken,
+                          paid ? "receipt" : "pay_link"
+                        )
+                      }
+                      className="dp-btn-ghost !px-3 !py-2 text-xs disabled:opacity-50"
+                    >
+                      {emailing === q.publicToken + (paid ? "receipt" : "pay_link")
+                        ? "…"
+                        : paid
+                          ? "Email receipt"
+                          : "Email link"}
+                    </button>
                     <button
                       type="button"
                       onClick={() => copyLink(q.publicToken)}

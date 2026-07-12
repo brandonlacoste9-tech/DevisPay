@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { findQuoteByToken, upsertQuote } from "@/lib/store";
+import { findQuoteByToken, findUserById, upsertQuote } from "@/lib/store";
 import { isPaidStatus } from "@/lib/types";
+import { isEmailConfigured, sendReceiptEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,6 +34,14 @@ export async function POST(
   quote.paidVia = "manual";
   quote.updatedAt = new Date().toISOString();
   await upsertQuote(quote);
+
+  if (isEmailConfigured()) {
+    const business = await findUserById(session.userId);
+    if (business) {
+      const mailed = await sendReceiptEmail({ quote, business });
+      if (!mailed.ok) console.error("[mark-paid receipt email]", mailed.error);
+    }
+  }
 
   return NextResponse.json({ success: true, quote });
 }
