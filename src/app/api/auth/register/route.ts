@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { findUserByEmail, listUsers, saveUsers } from "@/lib/store";
+import { createUser, findUserByEmail } from "@/lib/store";
 import { newId, setSession } from "@/lib/session";
 import type { User } from "@/lib/types";
 
@@ -41,9 +41,7 @@ export async function POST(req: NextRequest) {
     createdAt: new Date().toISOString(),
     manualPayInstructions: parsed.data.manualPayInstructions,
   };
-  const users = await listUsers();
-  users.push(user);
-  await saveUsers(users);
+  await createUser(user);
   await setSession(user.id, user.email);
   return NextResponse.json({ success: true, userId: user.id });
 }

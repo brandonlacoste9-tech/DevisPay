@@ -62,6 +62,7 @@ NEXT_PUBLIC_SITE_URL=https://devispay.com
 SESSION_SECRET=long-random-string
 STRIPE_SECRET_KEY=sk_live_or_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+DATABASE_URL=postgresql://...@...neon.tech/neondb?sslmode=require
 ```
 
 5. Stripe webhook endpoint:  
@@ -69,9 +70,17 @@ STRIPE_WEBHOOK_SECRET=whsec_...
    Event: `checkout.session.completed`  
 6. Trigger a redeploy after env / domain changes.
 
-### Important (production data)
+## Neon (Postgres) — production data
 
-Local JSON under `data/` is **fine for demo**, but **Netlify Functions are ephemeral** — writes may not stick across instances. For real multi-user production, run `supabase/schema.sql` and wire Postgres (`DATABASE_URL`). Until then, treat Netlify as marketing + light demo.
+Netlify Functions are **ephemeral** — without a DB, users/quotes can vanish. **Use Neon.**
+
+1. Create project at [console.neon.tech](https://console.neon.tech)  
+2. Copy the connection string (**pooled** is fine for serverless)  
+3. Neon → **SQL Editor** → paste & run `supabase/schema.sql`  
+4. Netlify env: `DATABASE_URL=postgresql://...`  
+5. Redeploy  
+
+When `DATABASE_URL` is set, the app uses Neon. Without it, local JSON (`data/`) is used for demo only.
 
 ## Env
 
@@ -80,6 +89,7 @@ NEXT_PUBLIC_SITE_URL=https://devispay.com
 SESSION_SECRET=long-random
 STRIPE_SECRET_KEY=sk_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+DATABASE_URL=postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require
 ```
 
 Webhook: `POST /api/stripe/webhook` · event `checkout.session.completed`

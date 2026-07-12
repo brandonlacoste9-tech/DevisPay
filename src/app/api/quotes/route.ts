@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession, newId, newToken } from "@/lib/session";
-import { calcQuoteTotals, findUserById, listQuotes, upsertQuote } from "@/lib/store";
+import {
+  calcQuoteTotals,
+  findUserById,
+  listQuotesForUser,
+  upsertQuote,
+} from "@/lib/store";
 import type { LineItem, Quote } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -35,8 +40,7 @@ const CreateSchema = z.object({
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const all = await listQuotes();
-  const mine = all.filter((q) => q.userId === session.userId);
+  const mine = await listQuotesForUser(session.userId);
   return NextResponse.json({ quotes: mine });
 }
 
