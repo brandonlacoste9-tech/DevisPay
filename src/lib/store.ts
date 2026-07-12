@@ -43,6 +43,10 @@ function normalizeUser(u: User & Record<string, unknown>): User {
     createdAt: u.createdAt,
     manualPayInstructions: u.manualPayInstructions as string | undefined,
     brandLogoUrl: (u.brandLogoUrl as string | undefined) || undefined,
+    stripeCustomerId: (u.stripeCustomerId as string | undefined) || undefined,
+    stripeSubscriptionId: (u.stripeSubscriptionId as string | undefined) || undefined,
+    quotesThisMonth: Number(u.quotesThisMonth ?? 0),
+    quotesMonth: (u.quotesMonth as string | undefined) || undefined,
     stripeAccountId: (u.stripeAccountId as string | undefined) || undefined,
     stripeChargesEnabled: Boolean(u.stripeChargesEnabled),
     stripeDetailsSubmitted: Boolean(u.stripeDetailsSubmitted),
@@ -101,6 +105,10 @@ type AccountRow = {
   created_at: string | Date;
   manual_pay_instructions: string | null;
   brand_logo_url?: string | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  quotes_this_month?: number | null;
+  quotes_month?: string | null;
   stripe_connect_account_id?: string | null;
   stripe_charges_enabled?: boolean | null;
   stripe_details_submitted?: boolean | null;
@@ -165,6 +173,10 @@ function accountToUser(r: AccountRow): User {
     createdAt: iso(r.created_at) || new Date().toISOString(),
     manualPayInstructions: r.manual_pay_instructions ?? undefined,
     brandLogoUrl: r.brand_logo_url ?? undefined,
+    stripeCustomerId: r.stripe_customer_id ?? undefined,
+    stripeSubscriptionId: r.stripe_subscription_id ?? undefined,
+    quotesThisMonth: r.quotes_this_month ?? 0,
+    quotesMonth: r.quotes_month ?? undefined,
     stripeAccountId: r.stripe_connect_account_id ?? undefined,
     stripeChargesEnabled: Boolean(r.stripe_charges_enabled),
     stripeDetailsSubmitted: Boolean(r.stripe_details_submitted),
@@ -319,6 +331,10 @@ export async function updateUser(user: User): Promise<User> {
       plan_status = ${user.planStatus},
       manual_pay_instructions = ${user.manualPayInstructions ?? null},
       brand_logo_url = ${user.brandLogoUrl ?? null},
+      stripe_customer_id = ${user.stripeCustomerId ?? null},
+      stripe_subscription_id = ${user.stripeSubscriptionId ?? null},
+      quotes_this_month = ${user.quotesThisMonth ?? 0},
+      quotes_month = ${user.quotesMonth ?? null},
       stripe_connect_account_id = ${user.stripeAccountId ?? null},
       stripe_charges_enabled = ${user.stripeChargesEnabled ?? false},
       stripe_details_submitted = ${user.stripeDetailsSubmitted ?? false},

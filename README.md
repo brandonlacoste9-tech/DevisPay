@@ -112,7 +112,21 @@ EMAIL_FROM=DevisPay <noreply@devispay.com>
 1. Create account at [resend.com](https://resend.com)  
 2. API key → Netlify `RESEND_API_KEY`  
 3. Verify domain for production, or use `EMAIL_FROM=DevisPay <onboarding@resend.dev>` for tests  
-4. Features: **Email link** / **Email receipt** on dashboard; auto receipt on card/manual paid
+4. Features: **Email link** / **Email receipt** on dashboard; auto receipt on card/manual paid  
+
+### SaaS billing (your revenue)
+
+Dashboard → Upgrade Growth / Business / Activate Starter.  
+Uses Stripe Checkout (subscription). Webhook events to add:
+
+- `customer.subscription.created`  
+- `customer.subscription.updated`  
+- `customer.subscription.deleted`  
+
+Optional fixed prices: `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`, `STRIPE_PRICE_BUSINESS`  
+(without them, Checkout creates monthly CAD prices: $39 / $79 / $129).
+
+Enable **Customer portal** in Stripe → Settings → Billing for “Manage billing”.
 
 Webhook: `POST /api/stripe/webhook` · event `checkout.session.completed`
 

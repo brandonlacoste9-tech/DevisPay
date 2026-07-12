@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { BrandMark } from "@/components/BrandMark";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export default function HomePage() {
   const [lang, setLang] = useState<"fr" | "en">("en");
@@ -173,7 +174,9 @@ export default function HomePage() {
           <div>
             <div className="dp-animate-in inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-300/90">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
-              {fr ? "Payez ce devis · Simple" : "Pay this quote · Venmo-simple"}
+              {fr
+                ? "Pour cabinets, agences & pros"
+                : "For firms, agencies & professionals"}
             </div>
 
             <h1 className="dp-animate-in dp-delay-1 dp-display mt-6 max-w-xl text-5xl font-extrabold text-white sm:text-6xl lg:text-[4.25rem]">
@@ -192,8 +195,8 @@ export default function HomePage() {
 
             <p className="dp-animate-in dp-delay-2 mt-6 max-w-lg text-lg leading-relaxed text-zinc-400">
               {fr
-                ? "Devis pro → un lien → acompte par carte ou virement. Pour tout service dans le monde. Pas une banque. Juste l'argent qui arrive avant le travail."
-                : "Professional quote → one link → deposit by card or bank. For any service business on earth. Not a bank. Just the money before the work."}
+                ? "Devis professionnel → un lien → acompte sur votre Stripe. Preuve de paiement claire. Pas un CRM. Pas un escrow. L'outil pour démarrer payé."
+                : "Professional quote → one link → deposit on your Stripe. Clear payment paper trail. Not a CRM. Not escrow. The pay-to-start layer for serious businesses."}
             </p>
 
             <div className="dp-animate-in dp-delay-3 mt-9 flex flex-wrap items-center gap-3">
@@ -476,23 +479,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-white/5 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 sm:flex-row sm:px-8">
-          <BrandMark size="sm" />
-          <p className="text-center text-xs text-zinc-600">
-            © {new Date().getFullYear()} DevisPay · devispay.com ·{" "}
-            {fr ? "Pour les entreprises de service" : "For service businesses"}
-          </p>
-          <div className="flex gap-4 text-xs text-zinc-600">
-            <Link href="/login" className="hover:text-zinc-400">
-              {fr ? "Connexion" : "Log in"}
-            </Link>
-            <Link href="/register" className="hover:text-zinc-400">
-              {fr ? "S'inscrire" : "Sign up"}
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter fr={fr} />
     </div>
   );
 }

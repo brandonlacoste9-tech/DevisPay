@@ -36,6 +36,15 @@ export default function DashboardPage() {
   const [connectMsg, setConnectMsg] = useState("");
   const [emailing, setEmailing] = useState<string | null>(null);
   const [emailFlash, setEmailFlash] = useState<string | null>(null);
+  const [billing, setBilling] = useState<{
+    plan: string;
+    planName: string;
+    planStatus: string;
+    quotesUsed: number;
+    quotesLimit: number | null;
+    hasCustomer: boolean;
+  } | null>(null);
+  const [billingBusy, setBillingBusy] = useState(false);
 
   const loadConnect = useCallback(async () => {
     const res = await fetch("/api/stripe/connect");
@@ -55,9 +64,15 @@ export default function DashboardPage() {
     setLoading(false);
   }, [router]);
 
+  const loadBilling = useCallback(async () => {
+    const res = await fetch("/api/billing");
+    if (res.ok) setBilling(await res.json());
+  }, []);
+
   useEffect(() => {
     load();
     loadConnect();
+    loadBilling();
     if (typeof window !== "undefined") {
       const q = new URLSearchParams(window.location.search);
       if (q.get("connect") === "return" || q.get("connect") === "refresh") {
@@ -65,8 +80,12 @@ export default function DashboardPage() {
           loadConnect()
         );
       }
+      if (q.get("billing") === "success") {
+        setEmailFlash("Subscription updated — thank you.");
+        void loadBilling();
+      }
     }
-  }, [load, loadConnect]);
+  }, [load, loadConnect, loadBilling]);
 
   async function startConnect() {
     setConnectBusy(true);
@@ -89,6 +108,44 @@ export default function DashboardPage() {
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
+  }
+
+  async function subscribe(plan: "starter" | "growth" | "business") {
+    setBillingBusy(true);
+    try {
+      const res = await fetch("/api/stripe/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailFlash(data.detail || data.error || "Billing failed");
+        return;
+      }
+      if (data.url) window.location.href = data.url as string;
+    } catch {
+      setEmailFlash("Network error");
+    } finally {
+      setBillingBusy(false);
+    }
+  }
+
+  async function openPortal() {
+    setBillingBusy(true);
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailFlash(data.hint || data.error || "Portal failed");
+        return;
+      }
+      if (data.url) window.location.href = data.url as string;
+    } catch {
+      setEmailFlash("Network error");
+    } finally {
+      setBillingBusy(false);
+    }
   }
 
   function copyLink(token: string) {
@@ -203,6 +260,72 @@ export default function DashboardPage() {
             <span className="text-zinc-500">
               Card deposits go to your account automatically.
             </span>
+          </div>
+        )}
+
+        {billing && (
+          <div className="dp-glass mb-8 rounded-3xl p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                  Your plan
+                </p>
+                <p className="mt-1 text-lg font-bold text-white">
+                  {billing.planName}{" "}
+                  <span className="text-sm font-normal text-zinc-500">
+                    · {billing.planStatus}
+                  </span>
+                </p>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Quotes this month: {billing.quotesUsed}
+                  {billing.quotesLimit != null
+                    ? ` / ${billing.quotesLimit}`
+                    : " · unlimited"}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {billing.plan !== "growth" && billing.plan !== "business" && (
+                  <button
+                    type="button"
+                    disabled={billingBusy}
+                    onClick={() => void subscribe("growth")}
+                    className="dp-btn-primary !px-4 !py-2 text-xs disabled:opacity-50"
+                  >
+                    Upgrade Growth $79
+                  </button>
+                )}
+                {billing.plan !== "business" && (
+                  <button
+                    type="button"
+                    disabled={billingBusy}
+                    onClick={() => void subscribe("business")}
+                    className="dp-btn-ghost !px-4 !py-2 text-xs disabled:opacity-50"
+                  >
+                    Business $129
+                  </button>
+                )}
+                {billing.planStatus === "trialing" && (
+                  <button
+                    type="button"
+                    disabled={billingBusy}
+                    onClick={() => void subscribe("starter")}
+                    className="dp-btn-ghost !px-4 !py-2 text-xs disabled:opacity-50"
+                  >
+                    Activate Starter $39
+                  </button>
+                )}
+                {billing.hasCustomer && (
+                  <button
+                    type="button"
+                    disabled={billingBusy}
+                    onClick={() => void openPortal()}
+                    className="dp-btn-ghost !px-4 !py-2 text-xs disabled:opacity-50"
+                  >
+                    Manage billing
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

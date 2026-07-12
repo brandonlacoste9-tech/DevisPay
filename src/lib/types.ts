@@ -18,6 +18,12 @@ export type User = {
   manualPayInstructions?: string;
   /** Public logo URL (https) shown on pay page + receipt */
   brandLogoUrl?: string;
+  /** Stripe Customer for SaaS subscription (cus_…) */
+  stripeCustomerId?: string;
+  /** Stripe Subscription for SaaS (sub_…) */
+  stripeSubscriptionId?: string;
+  quotesThisMonth?: number;
+  quotesMonth?: string;
   /** Stripe Connect Express account (acct_…) */
   stripeAccountId?: string;
   /** Can accept charges (from Stripe account.updated) */

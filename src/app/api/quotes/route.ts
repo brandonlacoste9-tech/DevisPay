@@ -5,9 +5,11 @@ import {
   calcQuoteTotals,
   findUserById,
   listQuotesForUser,
+  updateUser,
   upsertQuote,
 } from "@/lib/store";
 import type { LineItem, Quote } from "@/lib/types";
+import { canCreateQuote, monthKey } from "@/lib/plans";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,6 +59,23 @@ export async function POST(req: NextRequest) {
   }
   const d = parsed.data;
   const user = await findUserById(session.userId);
+  if (!user) {
+    return NextResponse.json({ error: "Account not found" }, { status: 404 });
+  }
+
+  // Reset monthly counter if new month
+  const mk = monthKey();
+  if (user.quotesMonth !== mk) {
+    user.quotesMonth = mk;
+    user.quotesThisMonth = 0;
+  }
+  const gate = canCreateQuote(user, user.quotesThisMonth ?? 0);
+  if (!gate.ok) {
+    return NextResponse.json(
+      { error: gate.reason, code: gate.code },
+      { status: 402 }
+    );
+  }
 
   const items: LineItem[] = d.items.map((it) => ({
     id: newId(),
@@ -111,6 +130,10 @@ export async function POST(req: NextRequest) {
     updatedAt: now,
   };
   await upsertQuote(quote);
+
+  user.quotesThisMonth = (user.quotesThisMonth ?? 0) + 1;
+  user.quotesMonth = mk;
+  await updateUser(user);
 
   const origin =
     req.headers.get("origin") ||

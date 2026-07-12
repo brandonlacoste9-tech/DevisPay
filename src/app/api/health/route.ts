@@ -47,5 +47,7 @@ export async function GET() {
     hasStripe: Boolean(process.env.STRIPE_SECRET_KEY),
     hasWebhookSecret: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
     hasSessionSecret: Boolean(process.env.SESSION_SECRET),
+    hasEmail: Boolean(process.env.RESEND_API_KEY),
+    emailFrom: process.env.EMAIL_FROM || null,
   });
 }
