@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CURRENCIES } from "@/lib/money";
 import { BrandMark } from "@/components/BrandMark";
+import { PasswordField } from "@/components/PasswordField";
 
 const COUNTRIES = [
   { code: "CA", label: "Canada" },
@@ -162,15 +163,12 @@ export default function RegisterPage() {
               placeholder="Default bank / Interac instructions (optional)"
               className="dp-field resize-none"
             />
-            <input
-              required
-              type="password"
-              minLength={8}
+            <PasswordField
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               placeholder="Password (8+)"
-              className="dp-field"
               autoComplete="new-password"
+              minLength={8}
             />
             {error && (
               <p className="rounded-xl bg-red-500/10 px-3 py-2 text-sm text-red-400">

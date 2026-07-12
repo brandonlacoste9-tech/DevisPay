@@ -2,7 +2,10 @@ import { createHmac, timingSafeEqual, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 
 const COOKIE = "dp_session";
-const MAX_AGE = 60 * 60 * 24 * 30;
+/** Stay signed in (Remember me) */
+const MAX_AGE_REMEMBER = 60 * 60 * 24 * 30; // 30 days
+/** Default session without Remember me */
+const MAX_AGE_SESSION = 60 * 60 * 24; // 1 day
 
 function secret() {
   return process.env.SESSION_SECRET || "devispay-dev-secret-change-me";
@@ -14,11 +17,15 @@ function sign(body: string) {
   return createHmac("sha256", secret()).update(body).digest("base64url");
 }
 
-export function encodeSession(userId: string, email: string): string {
+export function encodeSession(
+  userId: string,
+  email: string,
+  maxAgeSeconds: number = MAX_AGE_SESSION
+): string {
   const payload: Session = {
     userId,
     email,
-    exp: Math.floor(Date.now() / 1000) + MAX_AGE,
+    exp: Math.floor(Date.now() / 1000) + maxAgeSeconds,
   };
   const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
   return `${body}.${sign(body)}`;
@@ -50,14 +57,19 @@ export async function getSession(): Promise<Session | null> {
   return decodeSession(jar.get(COOKIE)?.value);
 }
 
-export async function setSession(userId: string, email: string) {
+export async function setSession(
+  userId: string,
+  email: string,
+  options?: { remember?: boolean }
+) {
+  const maxAge = options?.remember ? MAX_AGE_REMEMBER : MAX_AGE_SESSION;
   const jar = await cookies();
-  jar.set(COOKIE, encodeSession(userId, email), {
+  jar.set(COOKIE, encodeSession(userId, email, maxAge), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: MAX_AGE,
+    maxAge,
   });
 }
 

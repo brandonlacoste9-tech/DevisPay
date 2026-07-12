@@ -9,6 +9,7 @@ export const runtime = "nodejs";
 const Body = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  rememberMe: z.boolean().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -21,7 +22,9 @@ export async function POST(req: NextRequest) {
     if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
-    await setSession(user.id, user.email);
+    await setSession(user.id, user.email, {
+      remember: parsed.data.rememberMe !== false,
+    });
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("[login]", err);
