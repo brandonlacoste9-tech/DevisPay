@@ -21,6 +21,8 @@ function fmt(amount: number, currency: string) {
   }
 }
 
+const emptyItem = (): Item => ({ description: "", quantity: 1, unitPrice: 0 });
+
 export default function NewQuotePage() {
   const router = useRouter();
   const [customerName, setCustomerName] = useState("");
@@ -39,15 +41,18 @@ export default function NewQuotePage() {
   const [manualPayInstructions, setManualPayInstructions] = useState(
     "Interac e-Transfer to you@email.com — Security answer: DevisPay"
   );
-  const [items, setItems] = useState<Item[]>([
-    { description: "", quantity: 1, unitPrice: 0 },
-  ]);
+  const [items, setItems] = useState<Item[]>([emptyItem()]);
+  const [showQty, setShowQty] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [payUrl, setPayUrl] = useState("");
 
   const total = useMemo(
-    () => items.reduce((s, it) => s + it.quantity * it.unitPrice, 0),
+    () =>
+      items.reduce(
+        (s, it) => s + Math.max(0, it.quantity || 0) * Math.max(0, it.unitPrice || 0),
+        0
+      ),
     [items]
   );
 
@@ -108,8 +113,24 @@ export default function NewQuotePage() {
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
   }
 
+  function removeItem(i: number) {
+    setItems((prev) => (prev.length <= 1 ? prev : prev.filter((_, idx) => idx !== i)));
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const cleanItems = items
+      .map((it) => ({
+        description: it.description.trim(),
+        quantity: showQty ? Math.max(0.01, it.quantity || 1) : 1,
+        unitPrice: Math.max(0, it.unitPrice || 0),
+      }))
+      .filter((it) => it.description && it.unitPrice > 0);
+
+    if (cleanItems.length === 0) {
+      setError("Add at least one charge: what it’s for and the price.");
+      return;
+    }
     if (deposit <= 0) {
       setError("Choose how much you want paid now (must be more than zero).");
       return;
@@ -135,7 +156,7 @@ export default function NewQuotePage() {
           paymentPreference,
           manualPayInstructions:
             paymentPreference !== "card_only" ? manualPayInstructions : undefined,
-          items: items.filter((it) => it.description.trim()),
+          items: cleanItems,
         }),
       });
       const data = await res.json();
@@ -212,6 +233,8 @@ export default function NewQuotePage() {
     );
   };
 
+  const curLabel = currency.toUpperCase();
+
   return (
     <div className="dp-mesh min-h-screen text-zinc-100">
       <header className="border-b border-white/5 bg-[#050506]/80 backdrop-blur-xl">
@@ -228,7 +251,7 @@ export default function NewQuotePage() {
         <div>
           <h1 className="dp-display text-2xl font-bold text-white">New quote</h1>
           <p className="mt-1 text-sm text-zinc-500">
-            Tell us the job, then how much you want paid before you start.
+            Job details → what you charge → how much you want paid now.
           </p>
         </div>
 
@@ -254,7 +277,7 @@ export default function NewQuotePage() {
           <input
             value={customerPhone}
             onChange={(e) => setCustomerPhone(e.target.value)}
-            placeholder="Customer phone"
+            placeholder="Customer phone (optional)"
             className="dp-field"
           />
           <input
@@ -268,7 +291,7 @@ export default function NewQuotePage() {
 
         <div className="dp-glass grid grid-cols-2 gap-3 rounded-3xl p-5">
           <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
-            Currency they pay in
+            Currency
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
@@ -282,7 +305,7 @@ export default function NewQuotePage() {
             </select>
           </label>
           <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
-            Quote language
+            Language
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value as "fr" | "en")}
@@ -298,57 +321,127 @@ export default function NewQuotePage() {
           </label>
         </div>
 
-        <div className="dp-glass space-y-3 rounded-3xl p-5">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
-            What are you charging for?
-          </p>
-          {items.map((it, i) => (
-            <div key={i} className="grid grid-cols-12 gap-2">
-              <input
-                required
-                value={it.description}
-                onChange={(e) => updateItem(i, { description: e.target.value })}
-                placeholder="Description"
-                className="dp-field col-span-6 !py-2"
-              />
-              <input
-                type="number"
-                min={0.01}
-                step="any"
-                value={it.quantity}
-                onChange={(e) => updateItem(i, { quantity: Number(e.target.value) })}
-                className="dp-field col-span-2 !px-2 !py-2"
-                title="Qty"
-              />
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={it.unitPrice}
-                onChange={(e) => updateItem(i, { unitPrice: Number(e.target.value) })}
-                placeholder="Price"
-                className="dp-field col-span-4 !py-2"
-              />
+        {/* SIMPLE MONEY LINES */}
+        <div className="dp-glass space-y-4 rounded-3xl p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
+                What are you charging for?
+              </p>
+              <p className="mt-1 text-sm text-zinc-500">
+                Name it and set the price. Keep it simple.
+              </p>
             </div>
-          ))}
+            <button
+              type="button"
+              onClick={() => setShowQty((v) => !v)}
+              className="shrink-0 text-[11px] font-semibold text-zinc-500 hover:text-amber-400"
+            >
+              {showQty ? "Hide qty" : "Need qty?"}
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {items.map((it, i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-white/10 bg-black/30 p-3 sm:p-4"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold text-zinc-600">
+                    Charge {i + 1}
+                  </span>
+                  {items.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeItem(i)}
+                      className="text-[11px] font-semibold text-zinc-500 hover:text-red-400"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                <input
+                  required
+                  value={it.description}
+                  onChange={(e) => updateItem(i, { description: e.target.value })}
+                  placeholder="e.g. Kitchen remodel — phase 1"
+                  className="dp-field mt-2"
+                />
+                <div
+                  className={`mt-2 grid gap-2 ${showQty ? "grid-cols-2" : "grid-cols-1"}`}
+                >
+                  {showQty && (
+                    <label className="text-[11px] font-medium text-zinc-500">
+                      Quantity
+                      <input
+                        type="number"
+                        min={0.01}
+                        step="any"
+                        value={it.quantity || ""}
+                        onChange={(e) =>
+                          updateItem(i, {
+                            quantity: e.target.value === "" ? 0 : Number(e.target.value),
+                          })
+                        }
+                        placeholder="1"
+                        className="dp-field mt-1"
+                      />
+                    </label>
+                  )}
+                  <label className="text-[11px] font-medium text-zinc-500">
+                    {showQty ? `Price each (${curLabel})` : `Price (${curLabel})`}
+                    <div className="relative mt-1">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-500">
+                        $
+                      </span>
+                      <input
+                        required
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={it.unitPrice || ""}
+                        onChange={(e) =>
+                          updateItem(i, {
+                            unitPrice:
+                              e.target.value === "" ? 0 : Number(e.target.value),
+                          })
+                        }
+                        placeholder="0.00"
+                        className="dp-field !pl-8"
+                      />
+                    </div>
+                  </label>
+                </div>
+                {showQty && it.quantity > 0 && it.unitPrice > 0 && (
+                  <p className="mt-2 text-right text-xs text-zinc-500">
+                    Line total{" "}
+                    <strong className="text-zinc-300">
+                      {fmt(it.quantity * it.unitPrice, currency)}
+                    </strong>
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
           <button
             type="button"
-            onClick={() =>
-              setItems((p) => [...p, { description: "", quantity: 1, unitPrice: 0 }])
-            }
-            className="text-xs font-bold text-amber-400 hover:underline"
+            onClick={() => setItems((p) => [...p, emptyItem()])}
+            className="w-full rounded-2xl border border-dashed border-white/15 py-3 text-sm font-bold text-amber-400 transition hover:border-amber-500/40 hover:bg-amber-500/5"
           >
-            + Add line
+            + Add another charge
           </button>
-          {total > 0 && (
-            <p className="text-right text-sm text-zinc-400">
-              Project total{" "}
-              <strong className="text-white">{fmt(total, currency)}</strong>
-            </p>
-          )}
+
+          <div className="flex items-center justify-between rounded-2xl bg-black/40 px-4 py-3">
+            <span className="text-sm text-zinc-500">Project total</span>
+            <span className="text-lg font-black tabular-nums text-white">
+              {fmt(total, currency)}
+            </span>
+          </div>
         </div>
 
-        {/* HOW MUCH TO COLLECT — main ask */}
+        {/* HOW MUCH TO COLLECT */}
         <div className="dp-glass-strong space-y-4 rounded-3xl p-5 ring-1 ring-amber-500/20">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-400/90">
@@ -390,15 +483,20 @@ export default function NewQuotePage() {
 
           {payNowMode === "custom_fixed" && (
             <label className="block text-sm text-zinc-400">
-              Exact amount to collect now ({currency.toUpperCase()})
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={customFixed}
-                onChange={(e) => setCustomFixed(Number(e.target.value))}
-                className="dp-field mt-1.5 max-w-[200px]"
-              />
+              Exact amount to collect now ({curLabel})
+              <div className="relative mt-1.5 max-w-[200px]">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-500">
+                  $
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={customFixed || ""}
+                  onChange={(e) => setCustomFixed(Number(e.target.value))}
+                  className="dp-field !pl-8"
+                />
+              </div>
             </label>
           )}
 
