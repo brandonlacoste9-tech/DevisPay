@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BrandMark } from "@/components/BrandMark";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,46 +35,53 @@ export default function LoginPage() {
     }
   }
 
-  const field =
-    "w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-amber-500/50";
-
   return (
-    <div className="min-h-screen bg-[#0a0a0a] px-4 py-16 text-zinc-100">
-      <div className="mx-auto max-w-md">
-        <Link href="/" className="text-lg font-black text-amber-400">
-          DevisPay
-        </Link>
-        <h1 className="mt-8 text-2xl font-black">Log in</h1>
-        <form onSubmit={onSubmit} className="mt-6 space-y-3">
-          <input
-            required
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className={field}
-          />
-          <input
-            required
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className={field}
-          />
-          {error && <p className="text-sm text-red-400">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-amber-500 py-3 text-sm font-bold text-black hover:bg-amber-400 disabled:opacity-60"
-          >
-            {loading ? "…" : "Log in"}
-          </button>
-        </form>
-        <p className="mt-4 text-sm text-zinc-500">
+    <div className="dp-mesh dp-noise relative flex min-h-screen items-center justify-center px-4 py-16">
+      <div className="pointer-events-none absolute inset-0 dp-grid opacity-40" />
+      <div className="relative z-10 w-full max-w-md">
+        <BrandMark />
+        <div className="dp-glass-strong mt-10 rounded-3xl p-8">
+          <h1 className="dp-display text-2xl font-bold text-white">Welcome back</h1>
+          <p className="mt-2 text-sm text-zinc-500">
+            Sign in to send quotes and collect deposits.
+          </p>
+          <form onSubmit={onSubmit} className="mt-8 space-y-3">
+            <input
+              required
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              className="dp-field"
+              autoComplete="email"
+            />
+            <input
+              required
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="dp-field"
+              autoComplete="current-password"
+            />
+            {error && (
+              <p className="rounded-xl bg-red-500/10 px-3 py-2 text-sm text-red-400">
+                {error}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="dp-btn-primary w-full !rounded-2xl disabled:opacity-60"
+            >
+              {loading ? "…" : "Log in"}
+            </button>
+          </form>
+        </div>
+        <p className="mt-6 text-center text-sm text-zinc-500">
           No account?{" "}
-          <Link href="/register" className="text-amber-400 hover:underline">
-            Sign up
+          <Link href="/register" className="font-semibold text-amber-400 hover:underline">
+            Sign up free
           </Link>
         </p>
       </div>

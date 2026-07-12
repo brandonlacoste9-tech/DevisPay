@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CURRENCIES } from "@/lib/money";
+import { BrandMark } from "@/components/BrandMark";
 
 type Item = { description: string; quantity: number; unitPrice: number };
 
@@ -87,81 +88,99 @@ export default function NewQuotePage() {
 
   if (payUrl) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] px-4 py-16 text-zinc-100">
-        <div className="mx-auto max-w-lg rounded-2xl border border-green-500/30 bg-green-500/10 p-8 text-center">
-          <h1 className="text-xl font-black text-green-400">Quote ready</h1>
-          <p className="mt-3 text-sm text-zinc-300">Send this link to your client:</p>
-          <p className="mt-4 break-all rounded-xl bg-black/40 p-3 text-sm text-amber-400">
+      <div className="dp-mesh flex min-h-screen items-center justify-center px-4 py-16">
+        <div className="dp-glass-strong w-full max-w-lg rounded-3xl p-10 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-2xl text-emerald-400 ring-1 ring-emerald-500/30">
+            ✓
+          </div>
+          <h1 className="dp-display mt-5 text-2xl font-bold text-white">
+            Quote ready
+          </h1>
+          <p className="mt-2 text-sm text-zinc-400">
+            Send this link to your client — they pay the deposit in one tap.
+          </p>
+          <p className="mt-6 break-all rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm font-medium text-amber-300">
             {payUrl}
           </p>
           <button
             type="button"
-            className="mt-4 rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-black"
+            className="dp-btn-primary mt-5 w-full !rounded-2xl"
             onClick={() => void navigator.clipboard.writeText(payUrl)}
           >
             Copy link
           </button>
-          <div className="mt-6">
-            <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-white">
-              ← Dashboard
-            </Link>
-          </div>
+          <Link
+            href="/dashboard"
+            className="mt-6 inline-block text-sm text-zinc-500 hover:text-white"
+          >
+            ← Back to dashboard
+          </Link>
         </div>
       </div>
     );
   }
 
-  const field =
-    "w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-amber-500/50";
-
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100">
-      <header className="border-b border-white/10 px-4 py-4">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-white">
+    <div className="dp-mesh min-h-screen text-zinc-100">
+      <header className="border-b border-white/5 bg-[#050506]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4">
+          <Link href="/dashboard" className="text-sm text-zinc-500 hover:text-white">
             ← Back
           </Link>
-          <span className="font-black text-amber-400">New quote</span>
+          <BrandMark href="/dashboard" size="sm" />
+          <span className="w-12" />
         </div>
       </header>
 
-      <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-4 px-4 py-8">
-        <input
-          required
-          value={customerName}
-          onChange={(e) => setCustomerName(e.target.value)}
-          placeholder="Customer name"
-          className={field}
-        />
-        <input
-          required
-          type="email"
-          value={customerEmail}
-          onChange={(e) => setCustomerEmail(e.target.value)}
-          placeholder="Customer email"
-          className={field}
-        />
-        <input
-          value={customerPhone}
-          onChange={(e) => setCustomerPhone(e.target.value)}
-          placeholder="Customer phone"
-          className={field}
-        />
-        <input
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Job / project title"
-          className={field}
-        />
+      <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-5 px-4 py-10">
+        <div>
+          <h1 className="dp-display text-2xl font-bold text-white">New quote</h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Professional. Shareable. Payable.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <label className="text-xs text-zinc-500">
+        <div className="dp-glass space-y-3 rounded-3xl p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
+            Client
+          </p>
+          <input
+            required
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            placeholder="Customer name"
+            className="dp-field"
+          />
+          <input
+            required
+            type="email"
+            value={customerEmail}
+            onChange={(e) => setCustomerEmail(e.target.value)}
+            placeholder="Customer email"
+            className="dp-field"
+          />
+          <input
+            value={customerPhone}
+            onChange={(e) => setCustomerPhone(e.target.value)}
+            placeholder="Customer phone"
+            className="dp-field"
+          />
+          <input
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Job / project title"
+            className="dp-field"
+          />
+        </div>
+
+        <div className="dp-glass grid grid-cols-2 gap-3 rounded-3xl p-5">
+          <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
             Currency
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className={`${field} mt-1`}
+              className="dp-field mt-1.5"
             >
               {CURRENCIES.map((c) => (
                 <option key={c.code} value={c.code} className="bg-zinc-900">
@@ -170,12 +189,12 @@ export default function NewQuotePage() {
               ))}
             </select>
           </label>
-          <label className="text-xs text-zinc-500">
-            Quote language
+          <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
+            Language
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value as "fr" | "en")}
-              className={`${field} mt-1`}
+              className="dp-field mt-1.5"
             >
               <option value="en" className="bg-zinc-900">
                 English
@@ -187,8 +206,8 @@ export default function NewQuotePage() {
           </label>
         </div>
 
-        <div className="space-y-2">
-          <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+        <div className="dp-glass space-y-3 rounded-3xl p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
             Line items
           </p>
           {items.map((it, i) => (
@@ -198,7 +217,7 @@ export default function NewQuotePage() {
                 value={it.description}
                 onChange={(e) => updateItem(i, { description: e.target.value })}
                 placeholder="Description"
-                className="col-span-6 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm outline-none"
+                className="dp-field col-span-6 !py-2"
               />
               <input
                 type="number"
@@ -206,7 +225,7 @@ export default function NewQuotePage() {
                 step="any"
                 value={it.quantity}
                 onChange={(e) => updateItem(i, { quantity: Number(e.target.value) })}
-                className="col-span-2 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm outline-none"
+                className="dp-field col-span-2 !px-2 !py-2"
               />
               <input
                 type="number"
@@ -215,7 +234,7 @@ export default function NewQuotePage() {
                 value={it.unitPrice}
                 onChange={(e) => updateItem(i, { unitPrice: Number(e.target.value) })}
                 placeholder="Price"
-                className="col-span-4 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm outline-none"
+                className="dp-field col-span-4 !py-2"
               />
             </div>
           ))}
@@ -230,12 +249,12 @@ export default function NewQuotePage() {
           </button>
         </div>
 
-        <div className="rounded-xl border border-white/10 p-4 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+        <div className="dp-glass space-y-3 rounded-3xl p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
             Deposit
           </p>
           <div className="flex gap-4 text-sm">
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 text-zinc-300">
               <input
                 type="radio"
                 checked={depositType === "percent"}
@@ -243,7 +262,7 @@ export default function NewQuotePage() {
               />
               Percent
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 text-zinc-300">
               <input
                 type="radio"
                 checked={depositType === "fixed"}
@@ -259,7 +278,7 @@ export default function NewQuotePage() {
               max={100}
               value={depositPercent}
               onChange={(e) => setDepositPercent(Number(e.target.value))}
-              className={field}
+              className="dp-field"
             />
           ) : (
             <input
@@ -268,13 +287,13 @@ export default function NewQuotePage() {
               step="0.01"
               value={depositFixed}
               onChange={(e) => setDepositFixed(Number(e.target.value))}
-              className={field}
+              className="dp-field"
             />
           )}
         </div>
 
-        <div className="rounded-xl border border-white/10 p-4 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+        <div className="dp-glass space-y-3 rounded-3xl p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
             How can they pay?
           </p>
           <select
@@ -282,7 +301,7 @@ export default function NewQuotePage() {
             onChange={(e) =>
               setPaymentPreference(e.target.value as typeof paymentPreference)
             }
-            className={field}
+            className="dp-field"
           >
             <option value="card_or_manual" className="bg-zinc-900">
               Card or bank / Interac
@@ -300,7 +319,7 @@ export default function NewQuotePage() {
               onChange={(e) => setManualPayInstructions(e.target.value)}
               rows={3}
               placeholder="Interac / bank instructions"
-              className={field}
+              className="dp-field resize-none"
             />
           )}
         </div>
@@ -310,34 +329,40 @@ export default function NewQuotePage() {
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notes (optional)"
           rows={2}
-          className={field}
+          className="dp-field resize-none"
         />
 
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm">
-          <p>
-            Total:{" "}
-            <strong>
+        <div className="dp-glass-strong rounded-3xl p-5">
+          <div className="flex justify-between text-sm">
+            <span className="text-zinc-500">Total</span>
+            <strong className="tabular-nums text-white">
               {total.toLocaleString(undefined, {
                 style: "currency",
                 currency: currency.toUpperCase(),
               })}
             </strong>
-          </p>
-          <p className="text-amber-400">
-            Due now:{" "}
-            {deposit.toLocaleString(undefined, {
-              style: "currency",
-              currency: currency.toUpperCase(),
-            })}
-          </p>
+          </div>
+          <div className="mt-2 flex justify-between text-lg">
+            <span className="font-bold text-amber-400">Due now</span>
+            <span className="font-black tabular-nums text-amber-400">
+              {deposit.toLocaleString(undefined, {
+                style: "currency",
+                currency: currency.toUpperCase(),
+              })}
+            </span>
+          </div>
         </div>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && (
+          <p className="rounded-xl bg-red-500/10 px-3 py-2 text-sm text-red-400">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-amber-500 py-3 text-sm font-bold text-black hover:bg-amber-400 disabled:opacity-60"
+          className="dp-btn-primary w-full !rounded-2xl !py-3.5 disabled:opacity-60"
         >
           {loading ? "…" : "Create quote & get link"}
         </button>
