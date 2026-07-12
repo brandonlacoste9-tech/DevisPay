@@ -19,29 +19,45 @@ const Body = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const parsed = Body.safeParse(await req.json());
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid data" }, { status: 422 });
+  try {
+    const parsed = Body.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid data" }, { status: 422 });
+    }
+    const email = parsed.data.email.trim().toLowerCase();
+    if (await findUserByEmail(email)) {
+      return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+    }
+    const user: User = {
+      id: newId(),
+      email,
+      passwordHash: await bcrypt.hash(parsed.data.password, 10),
+      businessName: parsed.data.businessName.trim(),
+      phone: parsed.data.phone,
+      country: (parsed.data.country || "CA").toUpperCase(),
+      defaultCurrency: (parsed.data.defaultCurrency || "cad").toLowerCase(),
+      defaultLocale: parsed.data.defaultLocale || "en",
+      plan: "starter",
+      planStatus: "trialing",
+      createdAt: new Date().toISOString(),
+      manualPayInstructions: parsed.data.manualPayInstructions,
+    };
+    await createUser(user);
+    await setSession(user.id, user.email);
+    return NextResponse.json({ success: true, userId: user.id });
+  } catch (err) {
+    console.error("[register]", err);
+    const message = err instanceof Error ? err.message : "Server error";
+    // Don't leak internal DB details in production-looking messages
+    const safe =
+      /DATABASE_URL|password|ECONN|neon|ssl|timeout|relation|does not exist/i.test(
+        message
+      )
+        ? "Database error — check DATABASE_URL and schema on Neon"
+        : "Server error";
+    return NextResponse.json(
+      { error: safe, detail: process.env.NODE_ENV === "development" ? message : undefined },
+      { status: 500 }
+    );
   }
-  const email = parsed.data.email.trim().toLowerCase();
-  if (await findUserByEmail(email)) {
-    return NextResponse.json({ error: "Email already registered" }, { status: 409 });
-  }
-  const user: User = {
-    id: newId(),
-    email,
-    passwordHash: await bcrypt.hash(parsed.data.password, 10),
-    businessName: parsed.data.businessName.trim(),
-    phone: parsed.data.phone,
-    country: (parsed.data.country || "CA").toUpperCase(),
-    defaultCurrency: (parsed.data.defaultCurrency || "cad").toLowerCase(),
-    defaultLocale: parsed.data.defaultLocale || "en",
-    plan: "starter",
-    planStatus: "trialing",
-    createdAt: new Date().toISOString(),
-    manualPayInstructions: parsed.data.manualPayInstructions,
-  };
-  await createUser(user);
-  await setSession(user.id, user.email);
-  return NextResponse.json({ success: true, userId: user.id });
 }

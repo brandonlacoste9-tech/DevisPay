@@ -48,14 +48,20 @@ export default function RegisterPage() {
           manualPayInstructions: manualPayInstructions || undefined,
         }),
       });
-      const data = await res.json();
+      let data: { error?: string; detail?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        setError(`Server error (${res.status}). Redeploy or check Netlify logs.`);
+        return;
+      }
       if (!res.ok) {
-        setError(data.error || "Error");
+        setError(data.error || `Error (${res.status})`);
         return;
       }
       router.push("/dashboard");
     } catch {
-      setError("Network error");
+      setError("Network error — check connection or try again");
     } finally {
       setLoading(false);
     }

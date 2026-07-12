@@ -12,14 +12,22 @@ const Body = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const parsed = Body.safeParse(await req.json());
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid" }, { status: 422 });
+  try {
+    const parsed = Body.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid" }, { status: 422 });
+    }
+    const user = await findUserByEmail(parsed.data.email.trim().toLowerCase());
+    if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    }
+    await setSession(user.id, user.email);
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[login]", err);
+    return NextResponse.json(
+      { error: "Server error — check DATABASE_URL on Netlify" },
+      { status: 500 }
+    );
   }
-  const user = await findUserByEmail(parsed.data.email.trim().toLowerCase());
-  if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
-    return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
-  }
-  await setSession(user.id, user.email);
-  return NextResponse.json({ success: true });
 }
