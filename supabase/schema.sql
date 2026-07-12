@@ -1,45 +1,53 @@
--- DevisPay relational schema (Postgres / Supabase)
--- Use this when moving off local JSON store.
-
+-- DevisPay global schema (Postgres)
 create extension if not exists "pgcrypto";
 
-create table if not exists users (
+create table if not exists accounts (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   email text not null unique,
   password_hash text not null,
   business_name text not null,
   phone text,
-  plan text not null default 'solo' check (plan in ('solo','crew','pro')),
+  country text not null default 'CA',
+  default_currency text not null default 'cad',
+  default_locale text not null default 'en',
+  plan text not null default 'starter' check (plan in ('starter','growth','business')),
   plan_status text not null default 'trialing'
     check (plan_status in ('trialing','active','past_due','canceled')),
   stripe_customer_id text,
   stripe_subscription_id text,
   quotes_this_month int not null default 0,
   quotes_month text,
-  lang text not null default 'fr' check (lang in ('fr','en'))
+  brand_logo_url text,
+  manual_pay_instructions text
 );
 
 create table if not exists quotes (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  user_id uuid not null references users(id) on delete cascade,
+  account_id uuid not null references accounts(id) on delete cascade,
   public_token text not null unique,
   status text not null default 'draft'
-    check (status in ('draft','sent','deposit_paid','expired','void')),
+    check (status in ('draft','sent','paid','void','expired')),
   customer_name text not null,
   customer_email text not null,
   customer_phone text,
   title text not null,
   notes text,
   currency text not null default 'cad',
-  deposit_percent numeric(5,2) not null default 30,
+  locale text not null default 'en',
+  deposit_type text not null default 'percent' check (deposit_type in ('percent','fixed')),
+  deposit_percent numeric(5,2),
+  deposit_fixed_cents int,
   deposit_amount_cents int not null,
   total_cents int not null,
   tax_percent numeric(5,2) not null default 0,
-  lang text not null default 'fr',
+  payment_method_preference text default 'card_or_manual'
+    check (payment_method_preference in ('card_only','manual_only','card_or_manual')),
+  manual_pay_instructions text,
   paid_at timestamptz,
+  paid_via text check (paid_via in ('card','manual','other')),
   stripe_checkout_session_id text,
   stripe_payment_intent_id text
 );
@@ -54,6 +62,6 @@ create table if not exists quote_items (
   line_total_cents int not null
 );
 
-create index if not exists quotes_user_id_idx on quotes(user_id);
-create index if not exists quotes_token_idx on quotes(public_token);
+create index if not exists quotes_account_id_idx on quotes(account_id);
+create index if not exists quotes_public_token_idx on quotes(public_token);
 create index if not exists quotes_status_idx on quotes(status);

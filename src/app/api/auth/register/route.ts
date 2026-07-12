@@ -12,6 +12,10 @@ const Body = z.object({
   password: z.string().min(8),
   businessName: z.string().min(1).max(200),
   phone: z.string().max(40).optional(),
+  country: z.string().length(2).optional(),
+  defaultCurrency: z.string().min(3).max(3).optional(),
+  defaultLocale: z.enum(["fr", "en"]).optional(),
+  manualPayInstructions: z.string().max(500).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -29,7 +33,13 @@ export async function POST(req: NextRequest) {
     passwordHash: await bcrypt.hash(parsed.data.password, 10),
     businessName: parsed.data.businessName.trim(),
     phone: parsed.data.phone,
+    country: (parsed.data.country || "CA").toUpperCase(),
+    defaultCurrency: (parsed.data.defaultCurrency || "cad").toLowerCase(),
+    defaultLocale: parsed.data.defaultLocale || "en",
+    plan: "starter",
+    planStatus: "trialing",
     createdAt: new Date().toISOString(),
+    manualPayInstructions: parsed.data.manualPayInstructions,
   };
   const users = await listUsers();
   users.push(user);

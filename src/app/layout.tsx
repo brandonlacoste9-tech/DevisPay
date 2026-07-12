@@ -3,17 +3,29 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "DevisPay — Devis → acompte en un lien",
+    default: "DevisPay — Pay this quote. Get paid to start.",
     template: "%s | DevisPay",
   },
   description:
-    "Créez un devis, envoyez un lien, encaissez l'acompte par carte. Pour les métiers au Canada.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+    "Professional quote → one link → deposit by card or bank. Venmo-simple pay-to-start for any service business, worldwide. Not a bank escrow.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  ),
+  openGraph: {
+    title: "DevisPay — Get paid to start",
+    description:
+      "Quote → link → deposit. Card or bank/Interac. Multi-currency. For any service business.",
+    type: "website",
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="fr-CA">
+    <html lang="en">
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

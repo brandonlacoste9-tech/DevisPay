@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { findQuoteById, upsertQuote } from "@/lib/store";
+import { isPaidStatus } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,19 +28,22 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const quoteId = session.metadata?.quote_id;
-    if (quoteId) {
-      const quote = await findQuoteById(quoteId);
-      if (quote && quote.status !== "deposit_paid") {
-        quote.status = "deposit_paid";
-        quote.paidAt = new Date().toISOString();
-        quote.stripeSessionId = session.id;
-        quote.stripePaymentIntentId =
-          typeof session.payment_intent === "string"
-            ? session.payment_intent
-            : session.payment_intent?.id;
-        quote.updatedAt = new Date().toISOString();
-        await upsertQuote(quote);
+    if (session.metadata?.type === "deposit" || session.metadata?.quote_id) {
+      const quoteId = session.metadata?.quote_id;
+      if (quoteId) {
+        const quote = await findQuoteById(quoteId);
+        if (quote && !isPaidStatus(quote.status)) {
+          quote.status = "paid";
+          quote.paidAt = new Date().toISOString();
+          quote.paidVia = "card";
+          quote.stripeSessionId = session.id;
+          quote.stripePaymentIntentId =
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : session.payment_intent?.id;
+          quote.updatedAt = new Date().toISOString();
+          await upsertQuote(quote);
+        }
       }
     }
   }

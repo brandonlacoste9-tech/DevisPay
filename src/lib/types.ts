@@ -1,12 +1,21 @@
 export type Lang = "fr" | "en";
 
+export type PlanId = "starter" | "growth" | "business";
+
 export type User = {
   id: string;
   email: string;
   passwordHash: string;
   businessName: string;
   phone?: string;
+  country: string; // ISO CA, US, ...
+  defaultCurrency: string; // cad, usd, eur
+  defaultLocale: Lang;
+  plan: PlanId;
+  planStatus: "trialing" | "active" | "past_due" | "canceled";
   createdAt: string;
+  /** Optional Interac / bank instructions shown on public quotes */
+  manualPayInstructions?: string;
 };
 
 export type LineItem = {
@@ -16,7 +25,11 @@ export type LineItem = {
   unitPriceCents: number;
 };
 
-export type QuoteStatus = "draft" | "sent" | "deposit_paid" | "expired";
+export type QuoteStatus = "draft" | "sent" | "paid" | "void" | "expired";
+
+export type DepositType = "percent" | "fixed";
+export type PaidVia = "card" | "manual" | "other";
+export type PaymentPreference = "card_only" | "manual_only" | "card_or_manual";
 
 export type Quote = {
   id: string;
@@ -28,17 +41,26 @@ export type Quote = {
   customerPhone?: string;
   title: string;
   notes?: string;
-  currency: "cad";
+  currency: string; // iso lowercase cad/usd/eur
   items: LineItem[];
-  /** 0–100 */
-  depositPercent: number;
-  /** cents */
+  depositType: DepositType;
+  depositPercent?: number;
+  depositFixedCents?: number;
   depositAmountCents: number;
   totalCents: number;
+  taxPercent: number;
   lang: Lang;
+  paymentPreference: PaymentPreference;
+  manualPayInstructions?: string;
   createdAt: string;
   updatedAt: string;
   paidAt?: string;
+  paidVia?: PaidVia;
   stripeSessionId?: string;
   stripePaymentIntentId?: string;
 };
+
+/** Back-compat: old status name */
+export function isPaidStatus(status: string): boolean {
+  return status === "paid" || status === "deposit_paid";
+}

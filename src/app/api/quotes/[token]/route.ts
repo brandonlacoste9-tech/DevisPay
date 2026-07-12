@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findQuoteByToken, findUserById } from "@/lib/store";
+import { isPaidStatus } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,22 +18,28 @@ export async function GET(
   return NextResponse.json({
     quote: {
       id: quote.id,
-      status: quote.status,
+      status: isPaidStatus(quote.status) ? "paid" : quote.status,
       title: quote.title,
       customerName: quote.customerName,
       items: quote.items,
       totalCents: quote.totalCents,
+      depositType: quote.depositType,
       depositPercent: quote.depositPercent,
       depositAmountCents: quote.depositAmountCents,
+      taxPercent: quote.taxPercent,
       notes: quote.notes,
       lang: quote.lang,
       currency: quote.currency,
+      paymentPreference: quote.paymentPreference,
+      manualPayInstructions: quote.manualPayInstructions,
       paidAt: quote.paidAt,
+      paidVia: quote.paidVia,
     },
     business: {
-      name: user?.businessName || "Entrepreneur",
+      name: user?.businessName || "Business",
       phone: user?.phone,
       email: user?.email,
+      country: user?.country,
     },
   });
 }

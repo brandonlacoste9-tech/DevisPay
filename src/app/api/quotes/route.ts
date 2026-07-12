@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession, newId, newToken } from "@/lib/session";
-import { calcTotals, listQuotes, upsertQuote } from "@/lib/store";
+import { calcQuoteTotals, findUserById, listQuotes, upsertQuote } from "@/lib/store";
 import type { LineItem, Quote } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const ItemSchema = z.object({
   description: z.string().min(1),
   quantity: z.number().positive(),
-  unitPrice: z.number().nonnegative(), // dollars
+  unitPrice: z.number().nonnegative(),
 });
 
 const CreateSchema = z.object({
@@ -19,8 +19,16 @@ const CreateSchema = z.object({
   customerPhone: z.string().optional(),
   title: z.string().min(1),
   notes: z.string().optional(),
-  depositPercent: z.number().min(1).max(100).default(30),
+  currency: z.string().min(3).max(3).default("cad"),
   lang: z.enum(["fr", "en"]).default("fr"),
+  taxPercent: z.number().min(0).max(100).default(0),
+  depositType: z.enum(["percent", "fixed"]).default("percent"),
+  depositPercent: z.number().min(1).max(100).optional(),
+  depositFixed: z.number().min(0).optional(), // dollars
+  paymentPreference: z
+    .enum(["card_only", "manual_only", "card_or_manual"])
+    .default("card_or_manual"),
+  manualPayInstructions: z.string().max(500).optional(),
   items: z.array(ItemSchema).min(1),
 });
 
@@ -44,16 +52,33 @@ export async function POST(req: NextRequest) {
     );
   }
   const d = parsed.data;
+  const user = await findUserById(session.userId);
+
   const items: LineItem[] = d.items.map((it) => ({
     id: newId(),
     description: it.description,
     quantity: it.quantity,
     unitPriceCents: Math.round(it.unitPrice * 100),
   }));
-  const { totalCents, depositAmountCents } = calcTotals(
+
+  const depositType = d.depositType;
+  const { totalCents, depositAmountCents } = calcQuoteTotals({
     items,
-    d.depositPercent
-  );
+    taxPercent: d.taxPercent,
+    depositType,
+    depositPercent: d.depositPercent ?? 30,
+    depositFixedCents:
+      d.depositFixed != null ? Math.round(d.depositFixed * 100) : undefined,
+  });
+
+  if (depositAmountCents < 50 && d.paymentPreference !== "manual_only") {
+    // Stripe minimum ~$0.50; allow manual-only smaller
+    return NextResponse.json(
+      { error: "Deposit must be at least 0.50 for card payments" },
+      { status: 400 }
+    );
+  }
+
   const now = new Date().toISOString();
   const quote: Quote = {
     id: newId(),
@@ -65,20 +90,29 @@ export async function POST(req: NextRequest) {
     customerPhone: d.customerPhone,
     title: d.title.trim(),
     notes: d.notes,
-    currency: "cad",
+    currency: d.currency.toLowerCase(),
     items,
-    depositPercent: d.depositPercent,
+    depositType,
+    depositPercent: depositType === "percent" ? d.depositPercent ?? 30 : undefined,
+    depositFixedCents:
+      depositType === "fixed" ? Math.round((d.depositFixed ?? 0) * 100) : undefined,
     depositAmountCents,
     totalCents,
+    taxPercent: d.taxPercent,
     lang: d.lang,
+    paymentPreference: d.paymentPreference,
+    manualPayInstructions:
+      d.manualPayInstructions || user?.manualPayInstructions || undefined,
     createdAt: now,
     updatedAt: now,
   };
   await upsertQuote(quote);
+
   const origin =
     req.headers.get("origin") ||
     process.env.NEXT_PUBLIC_SITE_URL ||
     "http://localhost:3000";
+
   return NextResponse.json({
     quote,
     payUrl: `${origin}/q/${quote.publicToken}`,

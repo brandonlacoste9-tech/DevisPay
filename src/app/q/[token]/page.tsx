@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { money } from "@/lib/money";
 
 type QuotePayload = {
   quote: {
@@ -9,21 +10,18 @@ type QuotePayload = {
     customerName: string;
     items: { description: string; quantity: number; unitPriceCents: number }[];
     totalCents: number;
-    depositPercent: number;
+    depositPercent?: number;
     depositAmountCents: number;
     notes?: string;
     lang: string;
+    currency: string;
+    paymentPreference: string;
+    manualPayInstructions?: string;
     paidAt?: string;
+    paidVia?: string;
   };
   business: { name: string; phone?: string; email?: string };
 };
-
-function money(cents: number) {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency: "CAD",
-  }).format(cents / 100);
-}
 
 export default function PublicQuotePage({
   params,
@@ -35,23 +33,29 @@ export default function PublicQuotePage({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [justPaid, setJustPaid] = useState(false);
+  const [showManual, setShowManual] = useState(false);
+  const [sellerMode, setSellerMode] = useState(false);
+  const [marking, setMarking] = useState(false);
+
+  async function load() {
+    const res = await fetch(`/api/quotes/${token}`);
+    if (!res.ok) {
+      setError("Quote not found");
+      return;
+    }
+    setData(await res.json());
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const q = new URLSearchParams(window.location.search);
       setJustPaid(q.get("paid") === "1");
+      setSellerMode(q.get("seller") === "1");
     }
-    void (async () => {
-      const res = await fetch(`/api/quotes/${token}`);
-      if (!res.ok) {
-        setError("Devis introuvable");
-        return;
-      }
-      setData(await res.json());
-    })();
+    void load();
   }, [token]);
 
-  async function pay() {
+  async function payCard() {
     setLoading(true);
     setError("");
     try {
@@ -62,14 +66,33 @@ export default function PublicQuotePage({
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(json.message || json.error || "Paiement indisponible");
+        setError(json.message || json.error || "Card pay unavailable");
         return;
       }
       if (json.url) window.location.href = json.url as string;
     } catch {
-      setError("Erreur réseau");
+      setError("Network error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function markPaid() {
+    setMarking(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/quotes/${token}/mark-paid`, { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json.error || "Login as the seller to mark paid");
+        return;
+      }
+      setJustPaid(true);
+      await load();
+    } catch {
+      setError("Network error");
+    } finally {
+      setMarking(false);
     }
   }
 
@@ -90,45 +113,60 @@ export default function PublicQuotePage({
   }
 
   const { quote, business } = data;
-  const isPaid = quote.status === "deposit_paid" || justPaid;
+  const fr = quote.lang === "fr";
+  const cur = quote.currency || "cad";
+  const loc = fr ? "fr-CA" : "en-CA";
+  const isPaid = quote.status === "paid" || quote.status === "deposit_paid" || justPaid;
+  const allowCard =
+    quote.paymentPreference === "card_only" ||
+    quote.paymentPreference === "card_or_manual";
+  const allowManual =
+    quote.paymentPreference === "manual_only" ||
+    quote.paymentPreference === "card_or_manual";
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] px-4 py-10 text-zinc-100">
-      <div className="mx-auto max-w-lg">
-        <p className="text-xs font-black uppercase tracking-widest text-amber-400">
+    <div className="min-h-screen bg-[#0c0c0c] px-4 py-8 text-zinc-100">
+      <div className="mx-auto max-w-md">
+        <p className="text-center text-[10px] font-black uppercase tracking-[0.25em] text-zinc-600">
           DevisPay
         </p>
-        <h1 className="mt-2 text-2xl font-black">{business.name}</h1>
-        {business.phone && (
-          <p className="text-sm text-zinc-500">{business.phone}</p>
-        )}
 
-        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <h2 className="text-lg font-bold">{quote.title}</h2>
-          <p className="mt-1 text-sm text-zinc-500">Pour {quote.customerName}</p>
+        <div className="mt-6 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent p-6 shadow-2xl">
+          <p className="text-sm text-zinc-400">{business.name}</p>
+          <h1 className="mt-1 text-2xl font-black leading-tight">{quote.title}</h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            {fr ? "Pour" : "For"} {quote.customerName}
+          </p>
 
-          <ul className="mt-6 space-y-2 border-t border-white/10 pt-4">
+          <ul className="mt-6 space-y-3 border-t border-white/10 pt-5">
             {quote.items.map((it, i) => (
-              <li key={i} className="flex justify-between gap-4 text-sm">
+              <li key={i} className="flex justify-between gap-3 text-sm">
                 <span className="text-zinc-300">
-                  {it.description}{" "}
-                  <span className="text-zinc-600">× {it.quantity}</span>
+                  {it.description}
+                  <span className="text-zinc-600"> × {it.quantity}</span>
                 </span>
-                <span className="shrink-0 tabular-nums">
-                  {money(Math.round(it.quantity * it.unitPriceCents))}
+                <span className="shrink-0 tabular-nums text-zinc-200">
+                  {money(Math.round(it.quantity * it.unitPriceCents), cur, loc)}
                 </span>
               </li>
             ))}
           </ul>
 
-          <div className="mt-6 space-y-1 border-t border-white/10 pt-4 text-sm">
-            <div className="flex justify-between">
-              <span className="text-zinc-400">Total</span>
-              <span className="font-bold">{money(quote.totalCents)}</span>
+          <div className="mt-5 space-y-2 border-t border-white/10 pt-5">
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-500">{fr ? "Total" : "Total"}</span>
+              <span className="font-semibold tabular-nums">
+                {money(quote.totalCents, cur, loc)}
+              </span>
             </div>
-            <div className="flex justify-between text-amber-400">
-              <span>Acompte ({quote.depositPercent}%)</span>
-              <span className="font-bold">{money(quote.depositAmountCents)}</span>
+            <div className="flex justify-between text-lg">
+              <span className="font-bold text-amber-400">
+                {fr ? "À payer maintenant" : "Due now"}
+                {quote.depositPercent != null ? ` (${quote.depositPercent}%)` : ""}
+              </span>
+              <span className="font-black tabular-nums text-amber-400">
+                {money(quote.depositAmountCents, cur, loc)}
+              </span>
             </div>
           </div>
 
@@ -137,27 +175,98 @@ export default function PublicQuotePage({
           )}
 
           {isPaid ? (
-            <div className="mt-6 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-center text-sm text-green-300">
-              Acompte reçu. Merci!
-              {quote.paidAt && (
-                <p className="mt-1 text-xs text-green-500/80">
-                  {new Date(quote.paidAt).toLocaleString("fr-CA")}
-                </p>
-              )}
+            <div className="mt-8 rounded-2xl border border-green-500/40 bg-green-500/15 py-6 text-center">
+              <p className="text-3xl">✓</p>
+              <p className="mt-2 text-lg font-black text-green-400">
+                {fr ? "Payé" : "Paid"}
+              </p>
+              <p className="mt-1 text-xs text-green-500/80">
+                {quote.paidVia === "manual"
+                  ? fr
+                    ? "Confirmé (virement / Interac)"
+                    : "Confirmed (bank / Interac)"
+                  : fr
+                    ? "Carte"
+                    : "Card"}
+                {quote.paidAt
+                  ? ` · ${new Date(quote.paidAt).toLocaleString(loc)}`
+                  : ""}
+              </p>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={pay}
-              disabled={loading}
-              className="mt-6 w-full rounded-xl bg-amber-500 py-3.5 text-sm font-bold text-black hover:bg-amber-400 disabled:opacity-60"
-            >
-              {loading ? "…" : `Payer l'acompte — ${money(quote.depositAmountCents)}`}
-            </button>
+            <div className="mt-8 space-y-3">
+              {allowCard && (
+                <button
+                  type="button"
+                  onClick={payCard}
+                  disabled={loading}
+                  className="w-full rounded-2xl bg-amber-500 py-4 text-base font-black text-black shadow-lg shadow-amber-500/20 hover:bg-amber-400 disabled:opacity-60"
+                >
+                  {loading
+                    ? "…"
+                    : fr
+                      ? `Payer ${money(quote.depositAmountCents, cur, loc)}`
+                      : `Pay ${money(quote.depositAmountCents, cur, loc)}`}
+                </button>
+              )}
+
+              {allowManual && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setShowManual((v) => !v)}
+                    className="w-full rounded-2xl border border-white/20 py-3 text-sm font-bold text-zinc-300 hover:border-white/40"
+                  >
+                    {fr
+                      ? "Payer autrement (Interac / virement)"
+                      : "Pay another way (bank / Interac)"}
+                  </button>
+                  {showManual && (
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-zinc-300 whitespace-pre-wrap">
+                      {quote.manualPayInstructions ||
+                        (fr
+                          ? "Contactez l'entreprise pour les instructions de virement."
+                          : "Contact the business for bank transfer instructions.")}
+                      <p className="mt-3 text-xs text-zinc-500">
+                        {fr
+                          ? "Montant exact : "
+                          : "Exact amount: "}
+                        <strong className="text-amber-400">
+                          {money(quote.depositAmountCents, cur, loc)}
+                        </strong>
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {sellerMode && (
+                <button
+                  type="button"
+                  onClick={markPaid}
+                  disabled={marking}
+                  className="w-full rounded-xl border border-green-500/40 py-3 text-xs font-bold text-green-400 hover:bg-green-500/10"
+                >
+                  {marking
+                    ? "…"
+                    : fr
+                      ? "Marquer acompte reçu (vendeur)"
+                      : "Mark deposit received (seller)"}
+                </button>
+              )}
+            </div>
           )}
 
-          {error && <p className="mt-3 text-center text-sm text-red-400">{error}</p>}
+          {error && (
+            <p className="mt-4 text-center text-sm text-red-400">{error}</p>
+          )}
         </div>
+
+        <p className="mt-6 text-center text-[10px] text-zinc-600">
+          {fr
+            ? "Paiement sécurisé · Pas un compte bancaire d'escrow"
+            : "Secure payment · Not a bank escrow account"}
+        </p>
       </div>
     </div>
   );

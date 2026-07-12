@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Quote, User } from "./types";
+import { isPaidStatus } from "./types";
 
 const DATA = path.join(process.cwd(), "data");
 
@@ -21,12 +22,64 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
 
 async function writeJson<T>(file: string, data: T): Promise<void> {
   await ensure();
-  const p = path.join(DATA, file);
-  await fs.writeFile(p, JSON.stringify(data, null, 2), "utf8");
+  await fs.writeFile(path.join(DATA, file), JSON.stringify(data, null, 2), "utf8");
+}
+
+function normalizeUser(u: User & Record<string, unknown>): User {
+  return {
+    id: u.id,
+    email: u.email,
+    passwordHash: u.passwordHash,
+    businessName: u.businessName,
+    phone: u.phone,
+    country: (u.country as string) || "CA",
+    defaultCurrency: (u.defaultCurrency as string) || "cad",
+    defaultLocale: (u.defaultLocale as User["defaultLocale"]) || "fr",
+    plan: (u.plan as User["plan"]) || "starter",
+    planStatus: (u.planStatus as User["planStatus"]) || "trialing",
+    createdAt: u.createdAt,
+    manualPayInstructions: u.manualPayInstructions as string | undefined,
+  };
+}
+
+function normalizeQuote(q: Quote & Record<string, unknown>): Quote {
+  const statusRaw = String(q.status);
+  const status =
+    statusRaw === "deposit_paid" ? "paid" : (statusRaw as Quote["status"]);
+  return {
+    id: q.id,
+    userId: q.userId,
+    publicToken: q.publicToken,
+    status: isPaidStatus(status) ? "paid" : status,
+    customerName: q.customerName,
+    customerEmail: q.customerEmail,
+    customerPhone: q.customerPhone,
+    title: q.title,
+    notes: q.notes,
+    currency: (q.currency as string) || "cad",
+    items: q.items || [],
+    depositType: (q.depositType as Quote["depositType"]) || "percent",
+    depositPercent: q.depositPercent ?? 30,
+    depositFixedCents: q.depositFixedCents,
+    depositAmountCents: q.depositAmountCents,
+    totalCents: q.totalCents,
+    taxPercent: q.taxPercent ?? 0,
+    lang: q.lang || "fr",
+    paymentPreference:
+      (q.paymentPreference as Quote["paymentPreference"]) || "card_or_manual",
+    manualPayInstructions: q.manualPayInstructions,
+    createdAt: q.createdAt,
+    updatedAt: q.updatedAt,
+    paidAt: q.paidAt,
+    paidVia: q.paidVia,
+    stripeSessionId: q.stripeSessionId,
+    stripePaymentIntentId: q.stripePaymentIntentId,
+  };
 }
 
 export async function listUsers(): Promise<User[]> {
-  return readJson<User[]>("users.json", []);
+  const raw = await readJson<(User & Record<string, unknown>)[]>("users.json", []);
+  return raw.map(normalizeUser);
 }
 
 export async function saveUsers(users: User[]): Promise<void> {
@@ -44,7 +97,8 @@ export async function findUserById(id: string): Promise<User | undefined> {
 }
 
 export async function listQuotes(): Promise<Quote[]> {
-  return readJson<Quote[]>("quotes.json", []);
+  const raw = await readJson<(Quote & Record<string, unknown>)[]>("quotes.json", []);
+  return raw.map(normalizeQuote);
 }
 
 export async function saveQuotes(quotes: Quote[]): Promise<void> {
@@ -52,13 +106,11 @@ export async function saveQuotes(quotes: Quote[]): Promise<void> {
 }
 
 export async function findQuoteById(id: string): Promise<Quote | undefined> {
-  const quotes = await listQuotes();
-  return quotes.find((q) => q.id === id);
+  return (await listQuotes()).find((q) => q.id === id);
 }
 
 export async function findQuoteByToken(token: string): Promise<Quote | undefined> {
-  const quotes = await listQuotes();
-  return quotes.find((q) => q.publicToken === token);
+  return (await listQuotes()).find((q) => q.publicToken === token);
 }
 
 export async function upsertQuote(quote: Quote): Promise<Quote> {
@@ -70,22 +122,5 @@ export async function upsertQuote(quote: Quote): Promise<Quote> {
   return quote;
 }
 
-export function money(cents: number, currency = "CAD"): string {
-  return new Intl.NumberFormat("fr-CA", {
-    style: "currency",
-    currency,
-  }).format(cents / 100);
-}
-
-export function calcTotals(
-  items: { quantity: number; unitPriceCents: number }[],
-  depositPercent: number
-) {
-  const totalCents = items.reduce(
-    (s, it) => s + Math.round(it.quantity * it.unitPriceCents),
-    0
-  );
-  const pct = Math.min(100, Math.max(0, depositPercent));
-  const depositAmountCents = Math.round((totalCents * pct) / 100);
-  return { totalCents, depositAmountCents };
-}
+export { money } from "./money";
+export { calcQuoteTotals } from "./money";
