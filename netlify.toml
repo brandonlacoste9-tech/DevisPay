@@ -1,0 +1,26 @@
+# DevisPay — Netlify (Next.js via OpenNext adapter)
+# https://docs.netlify.com/build/frameworks/framework-setup-guides/nextjs/overview/
+
+[build]
+  command = "pnpm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Let Netlify use pnpm from lockfile
+  NPM_FLAGS = "--version"
+
+# Essential for Next.js App Router / API routes on Netlify
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Optional: longer function timeout for Stripe webhook
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
