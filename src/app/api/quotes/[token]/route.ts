@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findQuoteByToken, findUserById } from "@/lib/store";
-import { isPaidStatus } from "@/lib/types";
+import { isPaidStatus, remainingBalanceCents } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,17 +15,22 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   const user = await findUserById(quote.userId);
+  const paid = isPaidStatus(quote.status);
+  const remaining = remainingBalanceCents(quote);
+
   return NextResponse.json({
     quote: {
       id: quote.id,
-      status: isPaidStatus(quote.status) ? "paid" : quote.status,
+      status: paid ? "paid" : quote.status,
       title: quote.title,
       customerName: quote.customerName,
+      customerEmail: quote.customerEmail,
       items: quote.items,
       totalCents: quote.totalCents,
       depositType: quote.depositType,
       depositPercent: quote.depositPercent,
       depositAmountCents: quote.depositAmountCents,
+      remainingBalanceCents: remaining,
       taxPercent: quote.taxPercent,
       notes: quote.notes,
       lang: quote.lang,
@@ -34,12 +39,14 @@ export async function GET(
       manualPayInstructions: quote.manualPayInstructions,
       paidAt: quote.paidAt,
       paidVia: quote.paidVia,
+      createdAt: quote.createdAt,
     },
     business: {
       name: user?.businessName || "Business",
       phone: user?.phone,
       email: user?.email,
       country: user?.country,
+      logoUrl: user?.brandLogoUrl || null,
     },
   });
 }

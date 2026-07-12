@@ -42,6 +42,7 @@ function normalizeUser(u: User & Record<string, unknown>): User {
     planStatus: (u.planStatus as User["planStatus"]) || "trialing",
     createdAt: u.createdAt,
     manualPayInstructions: u.manualPayInstructions as string | undefined,
+    brandLogoUrl: (u.brandLogoUrl as string | undefined) || undefined,
     stripeAccountId: (u.stripeAccountId as string | undefined) || undefined,
     stripeChargesEnabled: Boolean(u.stripeChargesEnabled),
     stripeDetailsSubmitted: Boolean(u.stripeDetailsSubmitted),
@@ -99,6 +100,7 @@ type AccountRow = {
   plan_status: string;
   created_at: string | Date;
   manual_pay_instructions: string | null;
+  brand_logo_url?: string | null;
   stripe_connect_account_id?: string | null;
   stripe_charges_enabled?: boolean | null;
   stripe_details_submitted?: boolean | null;
@@ -162,6 +164,7 @@ function accountToUser(r: AccountRow): User {
     planStatus: r.plan_status as User["planStatus"],
     createdAt: iso(r.created_at) || new Date().toISOString(),
     manualPayInstructions: r.manual_pay_instructions ?? undefined,
+    brandLogoUrl: r.brand_logo_url ?? undefined,
     stripeAccountId: r.stripe_connect_account_id ?? undefined,
     stripeChargesEnabled: Boolean(r.stripe_charges_enabled),
     stripeDetailsSubmitted: Boolean(r.stripe_details_submitted),
@@ -315,6 +318,7 @@ export async function updateUser(user: User): Promise<User> {
       plan = ${user.plan},
       plan_status = ${user.planStatus},
       manual_pay_instructions = ${user.manualPayInstructions ?? null},
+      brand_logo_url = ${user.brandLogoUrl ?? null},
       stripe_connect_account_id = ${user.stripeAccountId ?? null},
       stripe_charges_enabled = ${user.stripeChargesEnabled ?? false},
       stripe_details_submitted = ${user.stripeDetailsSubmitted ?? false},

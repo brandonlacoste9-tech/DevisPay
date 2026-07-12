@@ -115,6 +115,12 @@ export default function DashboardPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
           <BrandMark href="/dashboard" size="sm" />
           <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard/settings"
+              className="hidden text-sm text-zinc-500 transition hover:text-white sm:inline"
+            >
+              Profile
+            </Link>
             <Link href="/dashboard/new" className="dp-btn-primary !px-4 !py-2 text-xs">
               + New quote
             </Link>
@@ -222,8 +228,19 @@ export default function DashboardPage() {
                       <span className="font-normal text-zinc-500">· {q.title}</span>
                     </p>
                     <p className="mt-1.5 text-xs text-zinc-500">
-                      Total {money(q.totalCents, q.currency || "cad")} · Due{" "}
-                      {money(q.depositAmountCents, q.currency || "cad")} ·{" "}
+                      Total {money(q.totalCents, q.currency || "cad")} · Deposit{" "}
+                      {money(q.depositAmountCents, q.currency || "cad")}
+                      {q.totalCents > q.depositAmountCents && (
+                        <>
+                          {" "}
+                          · Left{" "}
+                          {money(
+                            q.totalCents - q.depositAmountCents,
+                            q.currency || "cad"
+                          )}
+                        </>
+                      )}{" "}
+                      ·{" "}
                       <span
                         className={
                           paid
@@ -252,6 +269,16 @@ export default function DashboardPage() {
                     >
                       Mark paid
                     </a>
+                    {paid && (
+                      <a
+                        href={`/q/${q.publicToken}/receipt`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="dp-btn-ghost !px-3 !py-2 text-xs"
+                      >
+                        Receipt
+                      </a>
+                    )}
                     <button
                       type="button"
                       onClick={() => copyLink(q.publicToken)}

@@ -16,6 +16,8 @@ export type User = {
   createdAt: string;
   /** Optional Interac / bank instructions shown on public quotes */
   manualPayInstructions?: string;
+  /** Public logo URL (https) shown on pay page + receipt */
+  brandLogoUrl?: string;
   /** Stripe Connect Express account (acct_…) */
   stripeAccountId?: string;
   /** Can accept charges (from Stripe account.updated) */
@@ -74,4 +76,12 @@ export function isPaidStatus(status: string): boolean {
 /** Seller ready to accept card deposits into their own Stripe */
 export function canAcceptCardPayments(user: User | undefined | null): boolean {
   return Boolean(user?.stripeAccountId && user.stripeChargesEnabled);
+}
+
+/** Amount still owed after deposit (0 if deposit covers full total) */
+export function remainingBalanceCents(quote: {
+  totalCents: number;
+  depositAmountCents: number;
+}): number {
+  return Math.max(0, quote.totalCents - quote.depositAmountCents);
 }

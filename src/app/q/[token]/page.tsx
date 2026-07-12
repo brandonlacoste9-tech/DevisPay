@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import Link from "next/link";
 import { money } from "@/lib/money";
 
 type QuotePayload = {
@@ -12,6 +13,7 @@ type QuotePayload = {
     totalCents: number;
     depositPercent?: number;
     depositAmountCents: number;
+    remainingBalanceCents?: number;
     notes?: string;
     lang: string;
     currency: string;
@@ -20,7 +22,12 @@ type QuotePayload = {
     paidAt?: string;
     paidVia?: string;
   };
-  business: { name: string; phone?: string; email?: string };
+  business: {
+    name: string;
+    phone?: string;
+    email?: string;
+    logoUrl?: string | null;
+  };
 };
 
 export default function PublicQuotePage({
@@ -124,6 +131,9 @@ export default function PublicQuotePage({
   const allowManual =
     quote.paymentPreference === "manual_only" ||
     quote.paymentPreference === "card_or_manual";
+  const remaining =
+    quote.remainingBalanceCents ??
+    Math.max(0, quote.totalCents - quote.depositAmountCents);
 
   return (
     <div className="dp-mesh dp-noise relative min-h-screen px-4 py-10 text-zinc-100">
@@ -135,17 +145,24 @@ export default function PublicQuotePage({
 
         <div className="dp-glass-strong mt-6 overflow-hidden rounded-[1.75rem] p-1">
           <div className="rounded-[1.5rem] bg-[#0a0a0c]/90 p-6 sm:p-7">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-zinc-400">{business.name}</p>
-                <h1
-                  className="dp-display mt-1 text-2xl font-bold leading-tight text-white"
-                >
-                  {quote.title}
-                </h1>
-                <p className="mt-1 text-sm text-zinc-500">
-                  {fr ? "Pour" : "For"} {quote.customerName}
-                </p>
+            <div className="flex items-start gap-3">
+              {business.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={business.logoUrl}
+                  alt={business.name}
+                  className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-white/10"
+                />
+              ) : (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-lg font-black text-amber-400 ring-1 ring-amber-500/20">
+                  {business.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-white">{business.name}</p>
+                {business.phone && (
+                  <p className="text-xs text-zinc-500">{business.phone}</p>
+                )}
               </div>
               {!isPaid && (
                 <span className="shrink-0 rounded-full bg-amber-500/15 px-2.5 py-1 text-[10px] font-bold text-amber-300 ring-1 ring-amber-500/20">
@@ -153,6 +170,13 @@ export default function PublicQuotePage({
                 </span>
               )}
             </div>
+
+            <h1 className="dp-display mt-5 text-2xl font-bold leading-tight text-white">
+              {quote.title}
+            </h1>
+            <p className="mt-1 text-sm text-zinc-500">
+              {fr ? "Pour" : "For"} {quote.customerName}
+            </p>
 
             <ul className="mt-6 space-y-3 border-t border-white/8 pt-5">
               {quote.items.map((it, i) => (
@@ -170,15 +194,21 @@ export default function PublicQuotePage({
 
             <div className="mt-5 space-y-2 border-t border-white/8 pt-5">
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Total</span>
+                <span className="text-zinc-500">{fr ? "Total du projet" : "Project total"}</span>
                 <span className="font-semibold tabular-nums">
                   {money(quote.totalCents, cur, loc)}
                 </span>
               </div>
               <div className="flex justify-between text-lg">
                 <span className="font-bold text-amber-400">
-                  {fr ? "À payer maintenant" : "Due now"}
-                  {quote.depositPercent != null
+                  {isPaid
+                    ? fr
+                      ? "Acompte payé"
+                      : "Deposit paid"
+                    : fr
+                      ? "À payer maintenant"
+                      : "Due now"}
+                  {!isPaid && quote.depositPercent != null
                     ? ` (${quote.depositPercent}%)`
                     : ""}
                 </span>
@@ -186,6 +216,16 @@ export default function PublicQuotePage({
                   {money(quote.depositAmountCents, cur, loc)}
                 </span>
               </div>
+              {remaining > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-500">
+                    {fr ? "Solde restant" : "Remaining balance"}
+                  </span>
+                  <span className="tabular-nums text-zinc-300">
+                    {money(remaining, cur, loc)}
+                  </span>
+                </div>
+              )}
             </div>
 
             {quote.notes && (
@@ -195,25 +235,41 @@ export default function PublicQuotePage({
             )}
 
             {isPaid ? (
-              <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 py-7 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-xl text-emerald-400">
-                  ✓
+              <div className="mt-8 space-y-3">
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 py-7 text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-xl text-emerald-400">
+                    ✓
+                  </div>
+                  <p className="mt-3 text-lg font-black text-emerald-400">
+                    {fr ? "Acompte reçu" : "Deposit received"}
+                  </p>
+                  <p className="mt-1 text-xs text-emerald-500/80">
+                    {quote.paidVia === "manual"
+                      ? fr
+                        ? "Confirmé (virement / Interac)"
+                        : "Confirmed (bank / Interac)"
+                      : fr
+                        ? "Carte"
+                        : "Card"}
+                    {quote.paidAt
+                      ? ` · ${new Date(quote.paidAt).toLocaleString(loc)}`
+                      : ""}
+                  </p>
+                  {remaining > 0 && (
+                    <p className="mt-3 text-xs text-zinc-400">
+                      {fr ? "Solde restant sur le projet : " : "Remaining on project: "}
+                      <strong className="text-zinc-200">
+                        {money(remaining, cur, loc)}
+                      </strong>
+                    </p>
+                  )}
                 </div>
-                <p className="mt-3 text-lg font-black text-emerald-400">
-                  {fr ? "Payé" : "Paid"}
-                </p>
-                <p className="mt-1 text-xs text-emerald-500/80">
-                  {quote.paidVia === "manual"
-                    ? fr
-                      ? "Confirmé (virement / Interac)"
-                      : "Confirmed (bank / Interac)"
-                    : fr
-                      ? "Carte"
-                      : "Card"}
-                  {quote.paidAt
-                    ? ` · ${new Date(quote.paidAt).toLocaleString(loc)}`
-                    : ""}
-                </p>
+                <Link
+                  href={`/q/${token}/receipt`}
+                  className="dp-btn-ghost flex w-full !rounded-2xl"
+                >
+                  {fr ? "Voir le reçu" : "View receipt"}
+                </Link>
               </div>
             ) : (
               <div className="mt-8 space-y-3">
