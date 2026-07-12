@@ -1,0 +1,59 @@
+-- DevisPay relational schema (Postgres / Supabase)
+-- Use this when moving off local JSON store.
+
+create extension if not exists "pgcrypto";
+
+create table if not exists users (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  email text not null unique,
+  password_hash text not null,
+  business_name text not null,
+  phone text,
+  plan text not null default 'solo' check (plan in ('solo','crew','pro')),
+  plan_status text not null default 'trialing'
+    check (plan_status in ('trialing','active','past_due','canceled')),
+  stripe_customer_id text,
+  stripe_subscription_id text,
+  quotes_this_month int not null default 0,
+  quotes_month text,
+  lang text not null default 'fr' check (lang in ('fr','en'))
+);
+
+create table if not exists quotes (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  user_id uuid not null references users(id) on delete cascade,
+  public_token text not null unique,
+  status text not null default 'draft'
+    check (status in ('draft','sent','deposit_paid','expired','void')),
+  customer_name text not null,
+  customer_email text not null,
+  customer_phone text,
+  title text not null,
+  notes text,
+  currency text not null default 'cad',
+  deposit_percent numeric(5,2) not null default 30,
+  deposit_amount_cents int not null,
+  total_cents int not null,
+  tax_percent numeric(5,2) not null default 0,
+  lang text not null default 'fr',
+  paid_at timestamptz,
+  stripe_checkout_session_id text,
+  stripe_payment_intent_id text
+);
+
+create table if not exists quote_items (
+  id uuid primary key default gen_random_uuid(),
+  quote_id uuid not null references quotes(id) on delete cascade,
+  position int not null default 0,
+  description text not null,
+  quantity numeric(12,2) not null default 1,
+  unit_price_cents int not null,
+  line_total_cents int not null
+);
+
+create index if not exists quotes_user_id_idx on quotes(user_id);
+create index if not exists quotes_token_idx on quotes(public_token);
+create index if not exists quotes_status_idx on quotes(status);
