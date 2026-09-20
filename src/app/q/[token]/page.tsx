@@ -143,7 +143,7 @@ export default function PublicQuotePage({
     Math.max(0, quote.totalCents - quote.depositAmountCents);
 
   return (
-    <div className="dp-mesh dp-noise relative min-h-screen px-4 py-10 text-zinc-100">
+    <div className="dp-mesh dp-noise relative min-h-screen px-4 py-10 text-zinc-900">
       <div className="pointer-events-none absolute inset-0 dp-grid opacity-30" />
       <div className="relative z-10 mx-auto max-w-md">
         <p className="text-center text-[10px] font-bold uppercase tracking-[0.32em] text-zinc-500">

@@ -118,30 +118,30 @@ export default function HomePage() {
       ];
 
   return (
-    <div className="dp-mesh dp-noise relative min-h-screen overflow-x-hidden text-zinc-100">
+    <div className="dp-mesh dp-noise relative min-h-screen overflow-x-hidden text-zinc-900">
       <div className="pointer-events-none absolute inset-0 dp-grid opacity-60" />
 
       {/* Nav */}
       <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
         <BrandMark />
         <nav className="hidden items-center gap-8 text-sm text-zinc-400 md:flex">
-          <a href="#how" className="transition hover:text-white">
+          <a href="#how" className="transition hover:text-zinc-900">
             {fr ? "Comment" : "How it works"}
           </a>
-          <a href="#features" className="transition hover:text-white">
+          <a href="#features" className="transition hover:text-zinc-900">
             {fr ? "Fonctions" : "Product"}
           </a>
-          <a href="#pricing" className="transition hover:text-white">
+          <a href="#pricing" className="transition hover:text-zinc-900">
             {fr ? "Tarifs" : "Pricing"}
           </a>
         </nav>
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex rounded-full border border-white/10 bg-black/40 p-0.5 text-[11px] font-bold">
+          <div className="flex rounded-full border border-zinc-900/10 bg-white p-0.5 text-[11px] font-bold">
             <button
               type="button"
               onClick={() => setLang("en")}
               className={`rounded-full px-2.5 py-1 transition ${
-                !fr ? "bg-white text-black" : "text-zinc-500 hover:text-zinc-300"
+                !fr ? "bg-zinc-900 text-white" : "text-zinc-500 hover:text-zinc-800"
               }`}
             >
               EN
@@ -150,7 +150,7 @@ export default function HomePage() {
               type="button"
               onClick={() => setLang("fr")}
               className={`rounded-full px-2.5 py-1 transition ${
-                fr ? "bg-white text-black" : "text-zinc-500 hover:text-zinc-300"
+                fr ? "bg-zinc-900 text-white" : "text-zinc-500 hover:text-zinc-800"
               }`}
             >
               FR
@@ -158,7 +158,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/login"
-            className="hidden text-sm font-medium text-zinc-400 transition hover:text-white sm:inline"
+            className="hidden text-sm font-medium text-zinc-400 transition hover:text-zinc-900 sm:inline"
           >
             {fr ? "Connexion" : "Log in"}
           </Link>
@@ -172,23 +172,23 @@ export default function HomePage() {
       <section className="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-10 sm:px-8 sm:pb-28 sm:pt-16">
         <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <div className="dp-animate-in inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-300/90">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
+            <div className="dp-animate-in inline-flex items-center gap-2 rounded-full border border-zinc-900/10 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
               {fr
                 ? "Canada & États-Unis · métiers et services"
                 : "Canada & the US · trades and services"}
             </div>
 
-            <h1 className="dp-animate-in dp-delay-1 dp-display mt-6 max-w-xl text-5xl font-extrabold text-white sm:text-6xl lg:text-[4.25rem]">
+            <h1 className="dp-animate-in dp-delay-1 dp-display mt-6 max-w-xl text-5xl font-extrabold text-zinc-900 sm:text-6xl lg:text-[4.25rem]">
               {fr ? (
                 <>
                   L&apos;acompte,{" "}
-                  <span className="text-amber-400">avant</span> de commencer.
+                  <span className="text-amber-700">avant</span> de commencer.
                 </>
               ) : (
                 <>
                   Get paid to{" "}
-                  <span className="text-amber-400">start</span>.
+                  <span className="text-amber-700">start</span>.
                 </>
               )}
             </h1>
@@ -312,7 +312,7 @@ export default function HomePage() {
       </section>
 
       {/* Logo strip */}
-      <section className="relative z-10 border-y border-white/5 bg-black/20 py-8">
+      <section className="relative z-10 border-y border-zinc-900/10 bg-black/20 py-8">
         <p className="mb-5 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-600">
           {fr
             ? "Pour les métiers et services au Canada et aux États-Unis"
@@ -336,7 +336,7 @@ export default function HomePage() {
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-400/90">
             {fr ? "Comment ça marche" : "How it works"}
           </p>
-          <h2 className="dp-display mt-3 text-3xl font-bold text-white sm:text-4xl">
+          <h2 className="dp-display mt-3 text-3xl font-bold text-zinc-900 sm:text-4xl">
             {fr ? "Trois étapes. On commence payé." : "Three steps. Start the job paid."}
           </h2>
         </div>
@@ -346,10 +346,10 @@ export default function HomePage() {
               key={s.n}
               className="dp-glass group rounded-3xl p-7 transition hover:border-amber-500/25"
             >
-              <span className="dp-display text-4xl font-bold text-white/10 transition group-hover:text-amber-400/30">
+              <span className="dp-display text-4xl font-bold text-zinc-900/10 transition group-hover:text-amber-400/30">
                 {s.n}
               </span>
-              <h3 className="mt-4 text-lg font-bold text-white">{s.t}</h3>
+              <h3 className="mt-4 text-lg font-bold text-zinc-900">{s.t}</h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">{s.d}</p>
             </li>
           ))}
@@ -362,7 +362,7 @@ export default function HomePage() {
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-400/90">
             {fr ? "Produit" : "Product"}
           </p>
-          <h2 className="dp-display mt-3 text-3xl font-bold text-white sm:text-4xl">
+          <h2 className="dp-display mt-3 text-3xl font-bold text-zinc-900 sm:text-4xl">
             {fr
               ? "Tout pour l'acompte. Rien d'autre."
               : "What you need to get the deposit. Nothing else."}
@@ -379,7 +379,7 @@ export default function HomePage() {
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20">
                 <span className="text-sm font-black">{String(i + 1).padStart(2, "0")}</span>
               </div>
-              <h3 className="font-bold text-white">{t}</h3>
+              <h3 className="font-bold text-zinc-900">{t}</h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">{d}</p>
             </div>
           ))}
@@ -392,7 +392,7 @@ export default function HomePage() {
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-400/90">
             {fr ? "Tarifs" : "Pricing"}
           </p>
-          <h2 className="dp-display mt-3 text-3xl font-bold text-white sm:text-4xl">
+          <h2 className="dp-display mt-3 text-3xl font-bold text-zinc-900 sm:text-4xl">
             {fr ? "Simple. Transparent." : "Simple. Transparent."}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm text-zinc-500">
@@ -419,7 +419,7 @@ export default function HomePage() {
               )}
               <p className="text-sm font-semibold text-zinc-400">{p.name}</p>
               <p className="mt-3 flex items-baseline gap-1">
-                <span className="dp-display text-4xl font-extrabold text-white">
+                <span className="dp-display text-4xl font-extrabold text-zinc-900">
                   {p.price}
                 </span>
                 <span className="text-sm text-zinc-500">{p.unit}</span>
@@ -452,9 +452,8 @@ export default function HomePage() {
 
       {/* CTA band */}
       <section className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-8">
-        <div className="relative overflow-hidden rounded-[2rem] border border-amber-500/20 bg-gradient-to-br from-amber-500/15 via-[#0c0c0e] to-indigo-500/10 px-8 py-14 text-center sm:px-16">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(245,185,66,0.15),transparent_55%)]" />
-          <h2 className="dp-display relative text-3xl font-bold text-white sm:text-4xl">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[#1a1612] px-8 py-14 text-center sm:px-16">
+          <h2 className="dp-display relative text-3xl font-bold text-[#faf6ee] sm:text-4xl">
             {fr
               ? "Arrêtez de commencer le chantier sans acompte."
               : "Stop starting jobs unpaid."}
@@ -464,7 +463,7 @@ export default function HomePage() {
               ? "Le premier devis payé change la semaine. Créez le vôtre en une minute."
               : "The first paid quote changes the week. Make yours in a minute."}
           </p>
-          <Link href="/register" className="dp-btn-primary relative mt-8 inline-flex">
+          <Link href="/register" className="dp-btn-primary relative mt-8 inline-flex !bg-[#faf6ee] !text-[#1a1612]">
             {fr ? "Lancer DevisPay" : "Launch DevisPay"}
             <span aria-hidden>→</span>
           </Link>

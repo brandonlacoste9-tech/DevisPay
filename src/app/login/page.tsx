@@ -66,7 +66,7 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md">
         <BrandMark />
         <div className="dp-glass-strong mt-10 rounded-3xl p-8">
-          <h1 className="dp-display text-2xl font-bold text-white">Welcome back</h1>
+          <h1 className="dp-display text-2xl font-bold text-zinc-900">Welcome back</h1>
           <p className="mt-2 text-sm text-zinc-500">
             Sign in to send quotes and collect deposits.
           </p>

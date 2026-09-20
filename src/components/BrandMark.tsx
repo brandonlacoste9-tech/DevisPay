@@ -21,7 +21,7 @@ export function BrandMark({
         D
       </span>
       <span
-        className={`${sizes.text} font-bold tracking-tight text-white`}
+        className={`${sizes.text} font-bold tracking-tight text-zinc-900`}
         style={{ fontFamily: "var(--font-display)" }}
       >
         Devis<span className="text-amber-400">Pay</span>

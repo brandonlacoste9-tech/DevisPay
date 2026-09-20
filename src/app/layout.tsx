@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Syne } from "next/font/google";
+import { Plus_Jakarta_Sans, Newsreader } from "next/font/google";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -8,11 +8,11 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-const syne = Syne({
+const display = Newsreader({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
-  weight: ["500", "600", "700", "800"],
+  weight: ["500", "600", "700"],
 });
 
 const siteUrl =
@@ -87,7 +87,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${syne.variable}`}>
+    <html lang="en" className={`${jakarta.variable} ${display.variable}`}>
       <body className="min-h-screen font-sans antialiased">{children}</body>
     </html>
   );

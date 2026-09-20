@@ -72,10 +72,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="dp-mesh min-h-screen text-zinc-100">
-      <header className="border-b border-white/5 bg-[#050506]/80 backdrop-blur-xl">
+    <div className="dp-mesh min-h-screen text-zinc-900">
+      <header className="border-b border-zinc-900/10 bg-[#fffcf7]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-xl items-center justify-between px-4 py-4">
-          <Link href="/dashboard" className="text-sm text-zinc-500 hover:text-white">
+          <Link href="/dashboard" className="text-sm text-zinc-500 hover:text-zinc-900">
             ← Dashboard
           </Link>
           <BrandMark href="/dashboard" size="sm" />

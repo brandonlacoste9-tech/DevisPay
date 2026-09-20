@@ -214,7 +214,7 @@ export default function NewQuotePage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-2xl text-emerald-400 ring-1 ring-emerald-500/30">
             ✓
           </div>
-          <h1 className="dp-display mt-5 text-2xl font-bold text-white">
+          <h1 className="dp-display mt-5 text-2xl font-bold text-zinc-900">
             Quote ready
           </h1>
           <p className="mt-2 text-sm text-zinc-400">
@@ -245,7 +245,7 @@ export default function NewQuotePage() {
           )}
           <Link
             href="/dashboard"
-            className="mt-6 inline-block text-sm text-zinc-500 hover:text-white"
+            className="mt-6 inline-block text-sm text-zinc-500 hover:text-zinc-900"
           >
             ← Back to dashboard
           </Link>
@@ -267,7 +267,7 @@ export default function NewQuotePage() {
             : "border-white/10 bg-black/20 hover:border-white/20"
         }`}
       >
-        <span className={`block text-sm font-bold ${on ? "text-amber-300" : "text-white"}`}>
+        <span className={`block text-sm font-bold ${on ? "text-amber-800" : "text-zinc-900"}`}>
           {label}
         </span>
         {sub && <span className="mt-0.5 block text-[11px] text-zinc-500">{sub}</span>}
@@ -278,10 +278,10 @@ export default function NewQuotePage() {
   const curLabel = currency.toUpperCase();
 
   return (
-    <div className="dp-mesh min-h-screen text-zinc-100">
-      <header className="border-b border-white/5 bg-[#050506]/80 backdrop-blur-xl">
+    <div className="dp-mesh min-h-screen text-zinc-900">
+      <header className="border-b border-zinc-900/10 bg-[#fffcf7]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4">
-          <Link href="/dashboard" className="text-sm text-zinc-500 hover:text-white">
+          <Link href="/dashboard" className="text-sm text-zinc-500 hover:text-zinc-900">
             ← Back
           </Link>
           <BrandMark href="/dashboard" size="sm" />
@@ -291,7 +291,7 @@ export default function NewQuotePage() {
 
       <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-5 px-4 py-10">
         <div>
-          <h1 className="dp-display text-2xl font-bold text-white">New quote</h1>
+          <h1 className="dp-display text-2xl font-bold text-zinc-900">New quote</h1>
           <p className="mt-1 text-sm text-zinc-500">
             Job details → what you charge → how much you want paid now.
           </p>
@@ -477,7 +477,7 @@ export default function NewQuotePage() {
 
           <div className="flex items-center justify-between rounded-2xl bg-black/40 px-4 py-3">
             <span className="text-sm text-zinc-500">Project total</span>
-            <span className="text-lg font-black tabular-nums text-white">
+            <span className="text-lg font-black tabular-nums text-zinc-900">
               {fmt(total, currency)}
             </span>
           </div>
@@ -489,7 +489,7 @@ export default function NewQuotePage() {
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-400/90">
               Get paid to start
             </p>
-            <h2 className="dp-display mt-1 text-xl font-bold text-white">
+            <h2 className="dp-display mt-1 text-xl font-bold text-zinc-900">
               How much do you want paid now?
             </h2>
             <p className="mt-1 text-sm text-zinc-500">
@@ -591,7 +591,7 @@ export default function NewQuotePage() {
                     : "border-white/10 hover:border-white/20"
                 }`}
               >
-                <span className="font-bold text-white">{label}</span>
+                <span className="font-bold text-zinc-900">{label}</span>
                 <span className="mt-0.5 block text-[11px] text-zinc-500">{sub}</span>
               </button>
             ))}

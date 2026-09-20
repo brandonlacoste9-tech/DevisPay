@@ -38,7 +38,7 @@ export function PasswordField({
       <button
         type="button"
         onClick={() => setShow((v) => !v)}
-        className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-white/5 hover:text-zinc-300"
+        className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-900/5 hover:text-zinc-800"
         aria-label={show ? "Hide password" : "Show password"}
         tabIndex={0}
       >

@@ -196,14 +196,14 @@ export default function DashboardPage() {
   ).length;
 
   return (
-    <div className="dp-mesh min-h-screen text-zinc-100">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-[#050506]/80 backdrop-blur-xl">
+    <div className="dp-mesh min-h-screen text-zinc-900">
+      <header className="sticky top-0 z-20 border-b border-zinc-900/10 bg-[#fffcf7]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
           <BrandMark href="/dashboard" size="sm" />
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/settings"
-              className="hidden text-sm text-zinc-500 transition hover:text-white sm:inline"
+              className="hidden text-sm text-zinc-500 transition hover:text-zinc-900 sm:inline"
             >
               Profile
             </Link>
@@ -213,7 +213,7 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={logout}
-              className="text-sm text-zinc-500 transition hover:text-white"
+              className="text-sm text-zinc-500 transition hover:text-zinc-900"
             >
               Log out
             </button>
@@ -228,7 +228,7 @@ export default function DashboardPage() {
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-400">
               Stripe Connect
             </p>
-            <h2 className="dp-display mt-2 text-xl font-bold text-white">
+            <h2 className="dp-display mt-2 text-xl font-bold text-zinc-900">
               Connect your own Stripe to get paid
             </h2>
             <p className="mt-2 max-w-xl text-sm text-zinc-400">
@@ -270,7 +270,7 @@ export default function DashboardPage() {
                 <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
                   Your plan
                 </p>
-                <p className="mt-1 text-lg font-bold text-white">
+                <p className="mt-1 text-lg font-bold text-zinc-900">
                   {billing.planName}{" "}
                   <span className="text-sm font-normal text-zinc-500">
                     · {billing.planStatus}
@@ -331,7 +331,7 @@ export default function DashboardPage() {
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="dp-display text-3xl font-bold text-white">Dashboard</h1>
+            <h1 className="dp-display text-3xl font-bold text-zinc-900">Dashboard</h1>
             <p className="mt-1 text-sm text-zinc-500">
               Create a quote → share link → client pays your Stripe.
             </p>
@@ -340,7 +340,7 @@ export default function DashboardPage() {
             <div className="flex gap-4 text-sm">
               <div className="dp-glass rounded-2xl px-4 py-2">
                 <span className="text-zinc-500">Quotes</span>{" "}
-                <strong className="text-white">{quotes.length}</strong>
+                <strong className="text-zinc-900">{quotes.length}</strong>
               </div>
               <div className="dp-glass rounded-2xl px-4 py-2">
                 <span className="text-zinc-500">Paid</span>{" "}
@@ -360,7 +360,7 @@ export default function DashboardPage() {
           <div className="mt-16 text-center text-sm text-zinc-600">Loading…</div>
         ) : quotes.length === 0 ? (
           <div className="dp-glass mt-12 rounded-3xl border-dashed p-14 text-center">
-            <p className="dp-display text-xl font-bold text-white">No quotes yet</p>
+            <p className="dp-display text-xl font-bold text-zinc-900">No quotes yet</p>
             <p className="mx-auto mt-2 max-w-sm text-sm text-zinc-500">
               Connect Stripe, then create a professional quote in under a minute.
             </p>
@@ -381,7 +381,7 @@ export default function DashboardPage() {
                   className="dp-glass flex flex-col gap-4 rounded-2xl p-5 transition hover:border-white/15 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
-                    <p className="font-semibold text-white">
+                    <p className="font-semibold text-zinc-900">
                       {q.customerName}{" "}
                       <span className="font-normal text-zinc-500">· {q.title}</span>
                     </p>

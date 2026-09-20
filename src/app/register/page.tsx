@@ -74,11 +74,11 @@ export default function RegisterPage() {
       <div className="relative z-10 mx-auto w-full max-w-md">
         <BrandMark />
         <div className="dp-glass-strong mt-8 rounded-3xl p-8">
-          <h1 className="dp-display text-2xl font-bold text-white">
+          <h1 className="dp-display text-2xl font-bold text-zinc-900">
             Create your account
           </h1>
           <p className="mt-2 text-sm text-zinc-500">
-            Any service business. Multi-currency. Card or bank deposit.
+            Quotes in CAD or USD. Card or Interac. Canada and the US.
           </p>
           <form onSubmit={onSubmit} className="mt-7 space-y-3">
             <input
