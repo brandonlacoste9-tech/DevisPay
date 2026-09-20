@@ -385,7 +385,7 @@ export default function DashboardPage() {
                       {q.customerName}{" "}
                       <span className="font-normal text-zinc-500">· {q.title}</span>
                     </p>
-                    <p className="mt-1.5 text-xs text-zinc-500">
+                    <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
                       Total {money(q.totalCents, q.currency || "cad")} · Deposit{" "}
                       {money(q.depositAmountCents, q.currency || "cad")}
                       {q.totalCents > q.depositAmountCents && (
@@ -397,13 +397,12 @@ export default function DashboardPage() {
                             q.currency || "cad"
                           )}
                         </>
-                      )}{" "}
-                      ·{" "}
+                      )}
                       <span
                         className={
                           paid
-                            ? "font-semibold text-emerald-400"
-                            : "font-semibold text-amber-400/90"
+                            ? "rounded-full bg-emerald-500/15 px-2 py-0.5 font-semibold text-emerald-400"
+                            : "rounded-full bg-amber-500/15 px-2 py-0.5 font-semibold text-amber-300"
                         }
                       >
                         {statusLabel[q.status] || q.status}

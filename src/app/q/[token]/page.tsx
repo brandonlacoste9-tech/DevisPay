@@ -144,91 +144,84 @@ export default function PublicQuotePage({
 
   return (
     <div className="dp-mesh dp-noise relative min-h-screen px-4 py-10 text-zinc-100">
-      <div className="pointer-events-none absolute inset-0 dp-grid opacity-40" />
+      <div className="pointer-events-none absolute inset-0 dp-grid opacity-30" />
       <div className="relative z-10 mx-auto max-w-md">
-        <p className="text-center text-[10px] font-bold uppercase tracking-[0.28em] text-zinc-600">
-          Devis<span className="text-amber-500/70">Pay</span>
+        <p className="text-center text-[10px] font-bold uppercase tracking-[0.32em] text-zinc-500">
+          Devis<span className="text-amber-400">Pay</span>
         </p>
 
-        <div className="dp-glass-strong mt-6 overflow-hidden rounded-[1.75rem] p-1">
-          <div className="rounded-[1.5rem] bg-[#0a0a0c]/90 p-6 sm:p-7">
+        <article className="dp-invoice mt-6 overflow-hidden rounded-[1.6rem]">
+          <div className="dp-invoice-rule" />
+          <div className="p-6 sm:p-8">
             <div className="flex items-start gap-3">
               {business.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={business.logoUrl}
                   alt={business.name}
-                  className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-white/10"
+                  className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-black/10"
                 />
               ) : (
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-lg font-black text-amber-400 ring-1 ring-amber-500/20">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#1a1612] text-lg font-black text-amber-400">
                   {business.name.charAt(0).toUpperCase()}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-white">{business.name}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-800/70">
+                  {fr ? "Devis" : "Quote"}
+                </p>
+                <p className="truncate text-base font-semibold text-[#1a1612]">
+                  {business.name}
+                </p>
                 {business.phone && (
-                  <p className="text-xs text-zinc-500">{business.phone}</p>
+                  <p className="text-xs text-[#6b6258]">{business.phone}</p>
                 )}
               </div>
-              {!isPaid && (
-                <span className="shrink-0 rounded-full bg-amber-500/15 px-2.5 py-1 text-[10px] font-bold text-amber-300 ring-1 ring-amber-500/20">
+              {isPaid ? (
+                <span className="dp-stamp shrink-0">{fr ? "Payé" : "Paid"}</span>
+              ) : (
+                <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-900">
                   {fr ? "Dû" : "Due"}
                 </span>
               )}
             </div>
 
-            <h1 className="dp-display mt-5 text-2xl font-bold leading-tight text-white">
+            <h1 className="dp-display mt-6 text-[1.65rem] font-bold leading-tight text-[#1a1612]">
               {quote.title}
             </h1>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-[#6b6258]">
               {fr ? "Pour" : "For"} {quote.customerName}
             </p>
 
-            <ul className="mt-6 space-y-3 border-t border-white/8 pt-5">
+            <ul className="mt-6 space-y-3 border-t border-[#1a1612]/10 pt-5">
               {quote.items.map((it, i) => (
                 <li key={i} className="flex justify-between gap-3 text-sm">
-                  <span className="text-zinc-300">
+                  <span className="text-[#3d362f]">
                     {it.description}
-                    <span className="text-zinc-600"> × {it.quantity}</span>
+                    <span className="text-[#9a8f82]"> × {it.quantity}</span>
                   </span>
-                  <span className="shrink-0 tabular-nums text-zinc-200">
+                  <span className="shrink-0 tabular-nums text-[#1a1612]">
                     {money(Math.round(it.quantity * it.unitPriceCents), cur, loc)}
                   </span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-5 space-y-2 border-t border-white/8 pt-5">
+            <div className="mt-5 space-y-2 border-t border-[#1a1612]/10 pt-5">
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">{fr ? "Total du projet" : "Project total"}</span>
+                <span className="text-[#6b6258]">
+                  {fr ? "Total du projet" : "Project total"}
+                </span>
                 <span className="font-semibold tabular-nums">
                   {money(quote.totalCents, cur, loc)}
                 </span>
               </div>
-              <div className="flex justify-between text-lg">
-                <span className="font-bold text-amber-400">
-                  {isPaid
-                    ? fr
-                      ? "Acompte payé"
-                      : "Deposit paid"
-                    : fr
-                      ? "À payer maintenant"
-                      : "Due now"}
-                  {!isPaid && quote.depositPercent != null
-                    ? ` (${quote.depositPercent}%)`
-                    : ""}
-                </span>
-                <span className="font-black tabular-nums text-amber-400">
-                  {money(quote.depositAmountCents, cur, loc)}
-                </span>
-              </div>
               {remaining > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-500">
-                    {fr ? "Solde restant" : "Remaining balance"}
+                  <span className="text-[#6b6258]">
+                    {fr ? "Solde après acompte" : "Balance after deposit"}
                   </span>
-                  <span className="tabular-nums text-zinc-300">
+                  <span className="tabular-nums text-[#3d362f]">
                     {money(remaining, cur, loc)}
                   </span>
                 </div>
@@ -236,56 +229,62 @@ export default function PublicQuotePage({
             </div>
 
             {quote.notes && (
-              <p className="mt-4 whitespace-pre-wrap text-xs leading-relaxed text-zinc-500">
+              <p className="mt-4 whitespace-pre-wrap text-xs leading-relaxed text-[#6b6258]">
                 {quote.notes}
               </p>
             )}
+          </div>
+
+          <div className="dp-due px-6 py-5 sm:px-8">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-400/80">
+                  {isPaid
+                    ? fr
+                      ? "Acompte reçu"
+                      : "Deposit received"
+                    : fr
+                      ? "À payer maintenant"
+                      : "Due now"}
+                  {!isPaid && quote.depositPercent != null
+                    ? ` · ${quote.depositPercent}%`
+                    : ""}
+                </p>
+                <p className="dp-display mt-1 text-3xl font-extrabold tabular-nums tracking-tight">
+                  {money(quote.depositAmountCents, cur, loc)}
+                </p>
+              </div>
+            </div>
 
             {isPaid ? (
-              <div className="mt-8 space-y-3">
-                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 py-7 text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-xl text-emerald-400">
-                    ✓
-                  </div>
-                  <p className="mt-3 text-lg font-black text-emerald-400">
-                    {fr ? "Acompte reçu" : "Deposit received"}
-                  </p>
-                  <p className="mt-1 text-xs text-emerald-500/80">
-                    {quote.paidVia === "manual"
-                      ? fr
-                        ? "Confirmé (virement / Interac)"
-                        : "Confirmed (bank / Interac)"
-                      : fr
-                        ? "Carte"
-                        : "Card"}
-                    {quote.paidAt
-                      ? ` · ${new Date(quote.paidAt).toLocaleString(loc)}`
-                      : ""}
-                  </p>
-                  {remaining > 0 && (
-                    <p className="mt-3 text-xs text-zinc-400">
-                      {fr ? "Solde restant sur le projet : " : "Remaining on project: "}
-                      <strong className="text-zinc-200">
-                        {money(remaining, cur, loc)}
-                      </strong>
-                    </p>
-                  )}
-                </div>
+              <div className="mt-5 space-y-3">
+                <p className="text-xs text-zinc-400">
+                  {quote.paidVia === "manual"
+                    ? fr
+                      ? "Confirmé (virement / Interac)"
+                      : "Confirmed (bank / Interac)"
+                    : fr
+                      ? "Payé par carte"
+                      : "Paid by card"}
+                  {quote.paidAt
+                    ? ` · ${new Date(quote.paidAt).toLocaleString(loc)}`
+                    : ""}
+                </p>
                 <Link
                   href={`/q/${token}/receipt`}
-                  className="dp-btn-ghost flex w-full !rounded-2xl"
+                  className="dp-btn-ghost flex w-full !rounded-2xl !border-white/15 !bg-white/5"
                 >
                   {fr ? "Voir le reçu" : "View receipt"}
                 </Link>
               </div>
             ) : (
-              <div className="mt-8 space-y-3">
+              <div className="mt-5 space-y-2.5">
                 {allowCard && (
                   <button
                     type="button"
                     onClick={payCard}
                     disabled={loading}
-                    className="dp-btn-primary w-full !rounded-2xl !py-4 text-base disabled:opacity-60"
+                    className="dp-btn-primary w-full !rounded-2xl !py-3.5 text-base disabled:opacity-60"
                   >
                     {loading
                       ? "…"
@@ -294,13 +293,12 @@ export default function PublicQuotePage({
                         : `Pay ${money(quote.depositAmountCents, cur, loc)}`}
                   </button>
                 )}
-
                 {allowManual && (
                   <>
                     <button
                       type="button"
                       onClick={() => setShowManual((v) => !v)}
-                      className="dp-btn-ghost w-full !rounded-2xl"
+                      className="w-full rounded-2xl border border-white/15 bg-white/5 py-3 text-xs font-semibold text-zinc-200 transition hover:bg-white/10"
                     >
                       {fr
                         ? "Payer autrement (Interac / virement)"
@@ -322,13 +320,12 @@ export default function PublicQuotePage({
                     )}
                   </>
                 )}
-
                 {sellerMode && (
                   <button
                     type="button"
                     onClick={markPaid}
                     disabled={marking}
-                    className="w-full rounded-2xl border border-emerald-500/40 py-3 text-xs font-bold text-emerald-400 transition hover:bg-emerald-500/10"
+                    className="w-full rounded-2xl border border-emerald-400/40 py-3 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/10"
                   >
                     {marking
                       ? "…"
@@ -344,7 +341,7 @@ export default function PublicQuotePage({
               <p className="mt-4 text-center text-sm text-red-400">{error}</p>
             )}
           </div>
-        </div>
+        </article>
 
         <p className="mt-8 text-center text-[10px] tracking-wide text-zinc-600">
           {fr

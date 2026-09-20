@@ -183,12 +183,12 @@ export default function HomePage() {
               {fr ? (
                 <>
                   L&apos;acompte,{" "}
-                  <span className="dp-shimmer-text">avant</span> de commencer.
+                  <span className="text-amber-400">avant</span> de commencer.
                 </>
               ) : (
                 <>
                   Get paid to{" "}
-                  <span className="dp-shimmer-text">start</span>.
+                  <span className="text-amber-400">start</span>.
                 </>
               )}
             </h1>
@@ -231,31 +231,33 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Product mock */}
           <div className="dp-animate-in dp-delay-2 relative mx-auto w-full max-w-md">
-            <div className="absolute -inset-8 rounded-[2rem] bg-gradient-to-br from-amber-500/20 via-transparent to-indigo-500/15 blur-2xl" />
-            <div className="dp-glass-strong relative overflow-hidden rounded-[1.75rem] p-1">
-              <div className="rounded-[1.5rem] bg-[#0a0a0c] p-6 sm:p-7">
+            <div className="absolute -inset-8 rounded-[2rem] bg-gradient-to-br from-amber-500/20 via-transparent to-transparent blur-2xl" />
+            <div className="dp-invoice relative overflow-hidden rounded-[1.6rem]">
+              <div className="dp-invoice-rule" />
+              <div className="p-6 sm:p-7">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600">
-                      DevisPay
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-800/70">
+                      {fr ? "Devis" : "Quote"}
                     </p>
-                    <p className="mt-2 text-sm text-zinc-400">Atelier Nord · Montréal</p>
+                    <p className="mt-1.5 text-sm font-semibold text-[#1a1612]">
+                      Atelier Nord · Montréal
+                    </p>
                   </div>
-                  <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-[10px] font-bold text-amber-300">
-                    {fr ? "Dû maintenant" : "Due now"}
+                  <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-900">
+                    {fr ? "Dû" : "Due"}
                   </span>
                 </div>
 
-                <h3 className="dp-display mt-5 text-2xl font-bold text-white">
+                <h3 className="dp-display mt-5 text-2xl font-bold text-[#1a1612]">
                   {fr ? "Rénovation cuisine — phase 1" : "Kitchen remodel — phase 1"}
                 </h3>
-                <p className="mt-1 text-sm text-zinc-500">
+                <p className="mt-1 text-sm text-[#6b6258]">
                   {fr ? "Pour" : "For"} Sophie Martin
                 </p>
 
-                <ul className="mt-6 space-y-3 border-t border-white/8 pt-5 text-sm">
+                <ul className="mt-6 space-y-3 border-t border-[#1a1612]/10 pt-5 text-sm">
                   {(fr
                     ? [
                         ["Démolition & prep", "1 200 $"],
@@ -268,39 +270,29 @@ export default function HomePage() {
                         ["Labor", "$3,400"],
                       ]
                   ).map(([a, b]) => (
-                    <li key={a} className="flex justify-between text-zinc-300">
+                    <li key={a} className="flex justify-between text-[#3d362f]">
                       <span>{a}</span>
-                      <span className="tabular-nums text-zinc-400">{b}</span>
+                      <span className="tabular-nums text-[#6b6258]">{b}</span>
                     </li>
                   ))}
                 </ul>
-
-                <div className="mt-5 space-y-2 border-t border-white/8 pt-5">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Total</span>
-                    <span className="font-semibold tabular-nums">
-                      {fr ? "7 400 $ CAD" : "$7,400 CAD"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-lg">
-                    <span className="font-bold text-amber-400">
-                      {fr ? "Acompte 30%" : "Deposit 30%"}
-                    </span>
-                    <span className="font-black tabular-nums text-amber-400">
-                      {fr ? "2 220 $ CAD" : "$2,220 CAD"}
-                    </span>
-                  </div>
-                </div>
-
+              </div>
+              <div className="dp-due px-6 py-5 sm:px-7">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-400/80">
+                  {fr ? "À payer maintenant · 30%" : "Due now · 30%"}
+                </p>
+                <p className="dp-display mt-1 text-3xl font-extrabold tabular-nums">
+                  {fr ? "2 220 $ CAD" : "$2,220 CAD"}
+                </p>
                 <button
                   type="button"
-                  className="dp-btn-primary mt-7 w-full !rounded-2xl !py-3.5"
+                  className="dp-btn-primary mt-5 w-full !rounded-2xl !py-3.5"
                 >
                   {fr ? "Payer 2 220 $ CAD" : "Pay $2,220 CAD"}
                 </button>
                 <button
                   type="button"
-                  className="mt-2 w-full rounded-2xl border border-white/10 py-3 text-xs font-semibold text-zinc-400"
+                  className="mt-2 w-full rounded-2xl border border-white/15 py-3 text-xs font-semibold text-zinc-300"
                 >
                   {fr ? "Interac / virement" : "Bank / Interac instead"}
                 </button>
