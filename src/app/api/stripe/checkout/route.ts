@@ -107,6 +107,7 @@ export async function POST(req: NextRequest) {
         cancel_url: `${origin}/q/${quote.publicToken}?canceled=1`,
         payment_intent_data: {
           ...(fee > 0 ? { application_fee_amount: fee } : {}),
+          statement_descriptor_suffix: "QUOTE",
           metadata: {
             type: "deposit",
             quote_id: quote.id,

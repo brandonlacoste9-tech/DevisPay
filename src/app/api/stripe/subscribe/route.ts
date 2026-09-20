@@ -15,9 +15,12 @@ const Body = z.object({
 
 function priceIdEnv(plan: PlanId): string | undefined {
   const map: Record<PlanId, string | undefined> = {
-    starter: process.env.STRIPE_PRICE_STARTER,
-    growth: process.env.STRIPE_PRICE_GROWTH,
-    business: process.env.STRIPE_PRICE_BUSINESS,
+    starter:
+      process.env.STRIPE_PRICE_STARTER || "price_1UHZBqCzqBvMqSYFtu6eq2lF",
+    growth:
+      process.env.STRIPE_PRICE_GROWTH || "price_1UHZBrCzqBvMqSYFUWeGSSM1",
+    business:
+      process.env.STRIPE_PRICE_BUSINESS || "price_1UHZBrCzqBvMqSYFksOmOcNO",
   };
   const id = map[plan]?.trim();
   return id || undefined;
