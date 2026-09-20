@@ -71,7 +71,7 @@ export default function LoginPage() {
             Sign in to send quotes and collect deposits.
           </p>
           <p className="mt-3 text-[11px] text-zinc-600">
-            Stripe · Interac · your money, your account
+            Stripe · Interac · CAD & USD · your Stripe, your money
           </p>
           <form onSubmit={onSubmit} className="mt-8 space-y-3">
             <input

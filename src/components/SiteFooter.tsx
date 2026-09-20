@@ -6,7 +6,7 @@ export function SiteFooter({ fr = false }: { fr?: boolean }) {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 sm:flex-row sm:px-8">
         <p className="text-center text-xs text-zinc-600">
           © {new Date().getFullYear()} DevisPay · devispay.com ·{" "}
-          {fr ? "Pour les entreprises de service" : "For service businesses"}
+          {fr ? "Métiers et services · Canada & États-Unis" : "Trades and services · Canada & the US"}
         </p>
         <div className="flex flex-wrap justify-center gap-4 text-xs text-zinc-600">
           <Link href="/terms" className="hover:text-zinc-400">

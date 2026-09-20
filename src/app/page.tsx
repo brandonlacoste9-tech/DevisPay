@@ -18,49 +18,49 @@ export default function HomePage() {
         },
         {
           n: "02",
-          t: "Partagez le lien",
-          d: "Texto, courriel, WhatsApp. Un URL. Zéro friction.",
+          t: "Envoyez le lien",
+          d: "Texto, courriel, WhatsApp. Ils ouvrent une vraie facture — pas une app.",
         },
         {
           n: "03",
-          t: "Encaissez",
-          d: "Carte via Stripe, ou Interac / virement — marqué reçu.",
+          t: "Encaissez l'acompte",
+          d: "Carte sur Stripe, ou Interac / virement — vous marquez reçu.",
         },
       ]
     : [
         {
           n: "01",
-          t: "Craft the quote",
-          d: "Line items, any currency, % or fixed deposit. Pro in 60s.",
+          t: "Write the quote",
+          d: "Line items, CAD or USD, deposit % or a flat amount. Done in a minute.",
         },
         {
           n: "02",
-          t: "Share one link",
-          d: "Text, email, WhatsApp. One URL. Zero friction.",
+          t: "Send one link",
+          d: "Text, email, WhatsApp. They open it like a bill — because it is one.",
         },
         {
           n: "03",
-          t: "Get paid",
-          d: "Card via Stripe, or bank / Interac — mark received.",
+          t: "Get the deposit",
+          d: "Card on Stripe, or Interac / ACH / wire — you mark it received.",
         },
       ];
 
   const features = fr
     ? [
-        ["Multi-devises", "CAD, USD, EUR, GBP, AUD — un moteur mondial."],
-        ["Carte + virement", "Stripe Checkout ou instructions Interac / bank."],
-        ["Page type Venmo", "Le client paie en un geste. Vous, calme."],
-        ["FR / EN", "Devis bilingues. Votre marché, pas le nôtre."],
-        ["Pas d'escrow", "Pas une banque. Un lien de paiement clair."],
-        ["Prêt SaaS", "Plans Starter → Business. Scale clean."],
+        ["CAD & USD", "Devis en dollars canadiens ou américains. Interac au Canada, carte partout."],
+        ["Carte + virement", "Stripe Checkout, Interac, ACH ou virement — marqué reçu."],
+        ["Comme une facture", "Le client paie un devis. Pas une app. Pas un Venmo."],
+        ["FR / EN", "Le chantier parle français ou anglais. Le devis aussi."],
+        ["Pas une banque", "Pas d'escrow. L'argent va sur votre Stripe."],
+        ["Métiers & services", "Toiture, CVC, photo, ménage, rénos — partout au Canada et aux États-Unis."],
       ]
     : [
-        ["Multi-currency", "CAD, USD, EUR, GBP, AUD — one global engine."],
-        ["Card + bank", "Stripe Checkout or Interac / wire instructions."],
-        ["Venmo-style page", "Client pays in one tap. You stay calm."],
-        ["FR / EN", "Bilingual quotes. Your market, not ours."],
-        ["Not escrow", "Not a bank. A clear pay-on-quote link."],
-        ["SaaS-ready", "Starter → Business plans. Scale clean."],
+        ["CAD & USD", "Quote in Canadian or US dollars. Interac in Canada, cards everywhere."],
+        ["Card + bank", "Stripe Checkout, Interac, ACH, or wire — mark it received."],
+        ["Looks like a bill", "They pay a quote. Not an app. Not Venmo."],
+        ["EN / FR", "The job site speaks English or French. So does the quote."],
+        ["Not a bank", "Not escrow. Money lands on your Stripe."],
+        ["Trades & services", "Roofing, HVAC, photo, cleaning, remodels — Canada and the US."],
       ];
 
   const plans = fr
@@ -175,8 +175,8 @@ export default function HomePage() {
             <div className="dp-animate-in inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-300/90">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
               {fr
-                ? "Pour cabinets, agences & pros"
-                : "For firms, agencies & professionals"}
+                ? "Canada & États-Unis · métiers et services"
+                : "Canada & the US · trades and services"}
             </div>
 
             <h1 className="dp-animate-in dp-delay-1 dp-display mt-6 max-w-xl text-5xl font-extrabold text-white sm:text-6xl lg:text-[4.25rem]">
@@ -195,8 +195,8 @@ export default function HomePage() {
 
             <p className="dp-animate-in dp-delay-2 mt-6 max-w-lg text-lg leading-relaxed text-zinc-400">
               {fr
-                ? "Devis professionnel → un lien → acompte sur votre Stripe. Preuve de paiement claire. Pas un CRM. Pas un escrow. L'outil pour démarrer payé."
-                : "Professional quote → one link → deposit on your Stripe. Clear payment paper trail. Not a CRM. Not escrow. The pay-to-start layer for serious businesses."}
+                ? "Devis clair → un lien → acompte sur votre Stripe. Interac au Canada, carte au Canada et aux États-Unis. Pas un CRM. Pas une banque. Vous commencez payé."
+                : "Clear quote → one link → deposit on your Stripe. Interac in Canada, cards in Canada and the US. Not a CRM. Not a bank. You start the job paid."}
             </p>
 
             <div className="dp-animate-in dp-delay-3 mt-9 flex flex-wrap items-center gap-3">
@@ -220,13 +220,13 @@ export default function HomePage() {
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15 text-[10px] text-emerald-400">
                   ✓
                 </span>
-                Stripe · Interac · multi-currency
+                Stripe · Interac · CAD & USD
               </div>
               <div className="flex items-center gap-2">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15 text-[10px] text-emerald-400">
                   ✓
                 </span>
-                {fr ? "FR & EN natifs" : "Native FR & EN"}
+                {fr ? "FR & EN" : "English & French"}
               </div>
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function HomePage() {
                       {fr ? "Devis" : "Quote"}
                     </p>
                     <p className="mt-1.5 text-sm font-semibold text-[#1a1612]">
-                      Atelier Nord · Montréal
+                      Northline Builds · Toronto
                     </p>
                   </div>
                   <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-900">
@@ -315,13 +315,13 @@ export default function HomePage() {
       <section className="relative z-10 border-y border-white/5 bg-black/20 py-8">
         <p className="mb-5 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-600">
           {fr
-            ? "Pour les entreprises de service qui facturent avec confiance"
-            : "Built for service businesses that bill with confidence"}
+            ? "Pour les métiers et services au Canada et aux États-Unis"
+            : "For trades and service shops across Canada and the US"}
         </p>
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-5 text-sm font-semibold text-zinc-600">
           {(fr
-            ? ["Métiers", "Photo", "Design", "Ménage", "Coaching", "Consulting"]
-            : ["Trades", "Photo", "Design", "Cleaning", "Coaching", "Consulting"]
+            ? ["Toiture", "CVC", "Plomberie", "Rénos", "Photo", "Ménage"]
+            : ["Roofing", "HVAC", "Plumbing", "Remodels", "Photo", "Cleaning"]
           ).map((x) => (
             <span key={x} className="tracking-wide">
               {x}
@@ -337,7 +337,7 @@ export default function HomePage() {
             {fr ? "Comment ça marche" : "How it works"}
           </p>
           <h2 className="dp-display mt-3 text-3xl font-bold text-white sm:text-4xl">
-            {fr ? "Trois étapes. Zéro drame." : "Three steps. Zero drama."}
+            {fr ? "Trois étapes. On commence payé." : "Three steps. Start the job paid."}
           </h2>
         </div>
         <ol className="mt-12 grid gap-5 md:grid-cols-3">
@@ -364,8 +364,8 @@ export default function HomePage() {
           </p>
           <h2 className="dp-display mt-3 text-3xl font-bold text-white sm:text-4xl">
             {fr
-              ? "Tout ce qu'il faut. Rien de plus."
-              : "Everything you need. Nothing you don't."}
+              ? "Tout pour l'acompte. Rien d'autre."
+              : "What you need to get the deposit. Nothing else."}
           </h2>
         </div>
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -445,8 +445,8 @@ export default function HomePage() {
         </div>
         <p className="mt-8 text-center text-xs text-zinc-600">
           {fr
-            ? "Pas un compte d'escrow bancaire. Un lien de paiement sur un vrai devis — simple, mondial."
-            : "Not a bank escrow account. A pay link on a real quote — simple, global."}
+            ? "Pas un compte d'escrow. Un lien de paiement sur un vrai devis — Canada et États-Unis."
+            : "Not a bank escrow account. A pay link on a real quote — Canada and the US."}
         </p>
       </section>
 
@@ -456,13 +456,13 @@ export default function HomePage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(245,185,66,0.15),transparent_55%)]" />
           <h2 className="dp-display relative text-3xl font-bold text-white sm:text-4xl">
             {fr
-              ? "Arrêtez de commencer sans acompte."
-              : "Stop starting work unpaid."}
+              ? "Arrêtez de commencer le chantier sans acompte."
+              : "Stop starting jobs unpaid."}
           </h2>
           <p className="relative mx-auto mt-4 max-w-md text-zinc-400">
             {fr
-              ? "Le premier devis payé change tout. Créez le vôtre en une minute."
-              : "Your first paid quote changes everything. Create yours in a minute."}
+              ? "Le premier devis payé change la semaine. Créez le vôtre en une minute."
+              : "The first paid quote changes the week. Make yours in a minute."}
           </p>
           <Link href="/register" className="dp-btn-primary relative mt-8 inline-flex">
             {fr ? "Lancer DevisPay" : "Launch DevisPay"}

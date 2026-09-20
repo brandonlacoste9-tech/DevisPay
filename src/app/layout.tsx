@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s | DevisPay",
   },
   description:
-    "The premium way to send a quote and collect a deposit. Card or bank. Multi-currency. Built for service businesses worldwide.",
+    "Send a quote, collect a deposit. Card or Interac. CAD and USD. For trades and service shops across Canada and the US.",
   applicationName: "DevisPay",
   authors: [{ name: "DevisPay" }],
   keywords: [
@@ -33,7 +33,10 @@ export const metadata: Metadata = {
     "pay on quote",
     "Interac deposit",
     "Stripe deposit",
-    "service business payments",
+    "contractor deposit",
+    "HVAC quote payment",
+    "Canada",
+    "United States",
     "DevisPay",
   ],
   icons: {
@@ -46,7 +49,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DevisPay — Get paid to start",
     description:
-      "Professional quote → one link → deposit. Card or bank/Interac. Global.",
+      "Quote → one link → deposit. Card or Interac. Built for Canada and the US.",
     type: "website",
     siteName: "DevisPay",
     locale: "en_CA",
@@ -69,7 +72,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "DevisPay — Get paid to start",
-    description: "Quote → link → deposit. Venmo-simple pay-to-start.",
+    description: "Quote → link → deposit. Card or Interac. Canada and the US.",
     images: ["/twitter-image", "/og.jpg"],
   },
   robots: {
