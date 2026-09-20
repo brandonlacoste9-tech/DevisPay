@@ -15,28 +15,28 @@ const display = Newsreader({
   weight: ["500", "600", "700"],
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const siteUrl = "https://devispay.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "DevisPay — Get paid to start",
+    default: "DevisPay — Get paid before the job starts",
     template: "%s | DevisPay",
   },
   description:
-    "Send a quote, collect a deposit. Card or Interac. CAD and USD. For trades and service shops across Canada and the US.",
+    "Contractor deposit software for Canada and the US. Send a quote, collect a deposit by card or Interac, then start the job. Roofing, HVAC, plumbing, remodels.",
   applicationName: "DevisPay",
   authors: [{ name: "DevisPay" }],
   keywords: [
-    "quote deposit",
-    "pay on quote",
-    "Interac deposit",
-    "Stripe deposit",
-    "contractor deposit",
+    "contractor deposit software",
+    "get paid before starting a job",
+    "Interac deposit contractor",
+    "roofing deposit",
     "HVAC quote payment",
-    "Canada",
-    "United States",
+    "plumber deposit Canada",
+    "collect deposit from customer",
+    "acompte entrepreneur",
+    "devis acompte Interac",
     "DevisPay",
   ],
   icons: {
@@ -47,9 +47,9 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon", type: "image/png" }],
   },
   openGraph: {
-    title: "DevisPay — Get paid to start",
+    title: "DevisPay — Get paid before the job starts",
     description:
-      "Quote → one link → deposit. Card or Interac. Built for Canada and the US.",
+      "Quote → one link → deposit. Card or Interac. For trades in Canada and the US.",
     type: "website",
     siteName: "DevisPay",
     locale: "en_CA",
@@ -71,13 +71,22 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "DevisPay — Get paid to start",
-    description: "Quote → link → deposit. Card or Interac. Canada and the US.",
+    title: "DevisPay — Get paid before the job starts",
+    description:
+      "Quote → link → deposit. Card or Interac. Canada and the US.",
     images: ["/twitter-image", "/og.jpg"],
+  },
+  alternates: {
+    canonical: "https://devispay.com",
+    languages: {
+      "en-CA": "https://devispay.com",
+      "fr-CA": "https://devispay.com/entrepreneurs",
+    },
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: { index: true, follow: true },
   },
 };
 
@@ -87,7 +96,46 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${display.variable}`}>
+    <html lang="en-CA" className={`${jakarta.variable} ${display.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  name: "DevisPay",
+                  url: "https://devispay.com",
+                  logo: "https://devispay.com/icon.svg",
+                  areaServed: ["CA", "US"],
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  name: "DevisPay",
+                  applicationCategory: "BusinessApplication",
+                  operatingSystem: "Web",
+                  url: "https://devispay.com",
+                  description:
+                    "Send a quote and collect a deposit by card or Interac before the job starts.",
+                  offers: {
+                    "@type": "Offer",
+                    price: "39.00",
+                    priceCurrency: "CAD",
+                  },
+                },
+                {
+                  "@type": "WebSite",
+                  name: "DevisPay",
+                  url: "https://devispay.com",
+                  inLanguage: ["en-CA", "fr-CA"],
+                },
+              ],
+            }),
+          }}
+        />
+      </head>
       <body className="min-h-screen font-sans antialiased">{children}</body>
     </html>
   );

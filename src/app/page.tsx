@@ -350,9 +350,29 @@ export default function HomePage() {
             </article>
           ))}
         </div>
+        <p className="mt-8 text-sm text-zinc-600">
+          {fr ? "Pour " : "For "}
+          <Link href="/for/roofing" className="font-semibold text-amber-800 hover:underline">
+            {fr ? "couvreurs" : "roofers"}
+          </Link>
+          {", "}
+          <Link href="/for/plumbing" className="font-semibold text-amber-800 hover:underline">
+            {fr ? "plombiers" : "plumbers"}
+          </Link>
+          {", "}
+          <Link href="/for/hvac" className="font-semibold text-amber-800 hover:underline">
+            HVAC
+          </Link>
+          {", "}
+          <Link href="/for/remodeling" className="font-semibold text-amber-800 hover:underline">
+            {fr ? "rénos" : "remodels"}
+          </Link>
+          {". "}
+          <Link href={fr ? "/entrepreneurs" : "/contractors"} className="font-semibold text-amber-800 hover:underline">
+            {fr ? "Tous les métiers →" : "All trades →"}
+          </Link>
+        </p>
       </section>
-
-      {/* Work mosaic */}
       <section id="work" className="mx-auto max-w-6xl px-5 pb-20 sm:px-8">
         <div className="flex items-end justify-between gap-4">
           <div>

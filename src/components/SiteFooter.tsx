@@ -9,7 +9,13 @@ export function SiteFooter({ fr = false }: { fr?: boolean }) {
           {fr ? "Métiers et services · Canada & États-Unis" : "Trades and services · Canada & the US"}
         </p>
         <div className="flex flex-wrap justify-center gap-4 text-xs text-zinc-600">
-          <Link href="/terms" className="hover:text-zinc-400">
+          <Link href="/contractors" className="hover:text-zinc-900">
+            {fr ? "Métiers" : "For contractors"}
+          </Link>
+          <Link href="/entrepreneurs" className="hover:text-zinc-900">
+            FR
+          </Link>
+          <Link href="/terms" className="hover:text-zinc-900">
             {fr ? "Conditions" : "Terms"}
           </Link>
           <Link href="/privacy" className="hover:text-zinc-400">
