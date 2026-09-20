@@ -3,9 +3,11 @@ import Link from "next/link";
 export function BrandMark({
   href = "/",
   size = "md",
+  invert = false,
 }: {
   href?: string;
   size?: "sm" | "md" | "lg";
+  invert?: boolean;
 }) {
   const sizes = {
     sm: { mark: "h-7 w-7 text-[11px]", text: "text-base" },
@@ -21,10 +23,10 @@ export function BrandMark({
         D
       </span>
       <span
-        className={`${sizes.text} font-bold tracking-tight text-zinc-900`}
+        className={`${sizes.text} font-bold tracking-tight ${invert ? "text-white" : "text-zinc-900"}`}
         style={{ fontFamily: "var(--font-display)" }}
       >
-        Devis<span className="text-amber-400">Pay</span>
+        Devis<span className={invert ? "text-amber-300" : "text-amber-700"}>Pay</span>
       </span>
     </Link>
   );
