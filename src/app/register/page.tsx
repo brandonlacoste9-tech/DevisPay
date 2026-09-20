@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CURRENCIES } from "@/lib/money";
-import { BrandMark } from "@/components/BrandMark";
 import { PasswordField } from "@/components/PasswordField";
+import { AuthSplit } from "@/components/AuthSplit";
 
 const COUNTRIES = [
   { code: "CA", label: "Canada" },
@@ -69,18 +69,18 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="dp-mesh dp-noise relative min-h-screen px-4 py-12 sm:py-16">
-      <div className="pointer-events-none absolute inset-0 dp-grid opacity-40" />
-      <div className="relative z-10 mx-auto w-full max-w-md">
-        <BrandMark />
-        <div className="dp-glass-strong mt-8 rounded-3xl p-8">
-          <h1 className="dp-display text-2xl font-bold text-zinc-900">
-            Create your account
-          </h1>
-          <p className="mt-2 text-sm text-zinc-500">
-            Quotes in CAD or USD. Card or Interac. Canada and the US.
-          </p>
-          <form onSubmit={onSubmit} className="mt-7 space-y-3">
+    <AuthSplit
+      photo="/photos/kitchen-done.jpg"
+      caption="The van doesn’t roll until it’s paid."
+    >
+      <div className="rounded-[1.6rem] bg-white p-8 shadow-sm ring-1 ring-zinc-900/10">
+        <h1 className="dp-display text-3xl text-zinc-900">
+          Create your account
+        </h1>
+        <p className="mt-2 text-sm text-zinc-500">
+          Quotes in CAD or USD. Card or Interac. Canada and the US.
+        </p>
+        <form onSubmit={onSubmit} className="mt-7 space-y-3">
             <input
               required
               value={businessName}
@@ -120,7 +120,7 @@ export default function RegisterPage() {
                   className="dp-field mt-1.5"
                 >
                   {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code} className="bg-zinc-900">
+                    <option key={c.code} value={c.code}>
                       {c.label}
                     </option>
                   ))}
@@ -134,7 +134,7 @@ export default function RegisterPage() {
                   className="dp-field mt-1.5"
                 >
                   {CURRENCIES.map((c) => (
-                    <option key={c.code} value={c.code} className="bg-zinc-900">
+                    <option key={c.code} value={c.code}>
                       {c.label}
                     </option>
                   ))}
@@ -148,10 +148,10 @@ export default function RegisterPage() {
                 onChange={(e) => setDefaultLocale(e.target.value as "fr" | "en")}
                 className="dp-field mt-1.5"
               >
-                <option value="en" className="bg-zinc-900">
+                <option value="en">
                   English
                 </option>
-                <option value="fr" className="bg-zinc-900">
+                <option value="fr">
                   Français
                 </option>
               </select>
@@ -183,14 +183,13 @@ export default function RegisterPage() {
               {loading ? "…" : "Create free account"}
             </button>
           </form>
-        </div>
-        <p className="mt-6 text-center text-sm text-zinc-500">
-          Already have an account?{" "}
-          <Link href="/login" className="font-semibold text-amber-400 hover:underline">
-            Log in
-          </Link>
-        </p>
       </div>
-    </div>
+      <p className="mt-6 text-center text-sm text-zinc-500">
+        Already have an account?{" "}
+        <Link href="/login" className="font-semibold text-amber-800 hover:underline">
+          Log in
+        </Link>
+      </p>
+    </AuthSplit>
   );
 }

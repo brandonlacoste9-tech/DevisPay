@@ -209,8 +209,15 @@ export default function NewQuotePage() {
 
   if (payUrl) {
     return (
-      <div className="dp-mesh flex min-h-screen items-center justify-center px-4 py-16">
-        <div className="dp-glass-strong w-full max-w-lg rounded-3xl p-10 text-center">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/photos/house.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/55" />
+        <div className="relative z-10 w-full max-w-lg rounded-[1.6rem] bg-white p-10 text-center shadow-2xl">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-2xl text-emerald-400 ring-1 ring-emerald-500/30">
             ✓
           </div>
@@ -219,10 +226,10 @@ export default function NewQuotePage() {
           </h1>
           <p className="mt-2 text-sm text-zinc-400">
             Client pays{" "}
-            <strong className="text-amber-400">{fmt(deposit, currency)}</strong> to
+            <strong className="text-amber-800">{fmt(deposit, currency)}</strong> to
             start. Send this link:
           </p>
-          <p className="mt-6 break-all rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm font-medium text-amber-300">
+          <p className="mt-6 break-all rounded-2xl border border-amber-800/20 bg-amber-50 p-4 text-sm font-medium text-amber-950">
             {payUrl}
           </p>
           <button
@@ -264,7 +271,7 @@ export default function NewQuotePage() {
         className={`rounded-2xl border px-3 py-3 text-left transition ${
           on
             ? "border-amber-400/50 bg-amber-500/15 ring-1 ring-amber-400/30"
-            : "border-white/10 bg-black/20 hover:border-white/20"
+            : "border-zinc-200 bg-white hover:border-zinc-300"
         }`}
       >
         <span className={`block text-sm font-bold ${on ? "text-amber-800" : "text-zinc-900"}`}>

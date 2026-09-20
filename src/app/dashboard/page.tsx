@@ -225,14 +225,14 @@ export default function DashboardPage() {
         {/* Stripe Connect */}
         {connect && !connect.ready && (
           <div className="mb-8 rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-400">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-800">
               Stripe Connect
             </p>
             <h2 className="dp-display mt-2 text-xl font-bold text-zinc-900">
               Connect your own Stripe to get paid
             </h2>
             <p className="mt-2 max-w-xl text-sm text-zinc-400">
-              Card deposits go to <strong className="text-zinc-200">your</strong>{" "}
+              Card deposits go to <strong className="text-zinc-800">your</strong>{" "}
               Stripe account — not ours. Complete onboarding once; then every pay
               link is automatic. (Bank payouts still follow Stripe&apos;s schedule.)
             </p>
@@ -329,25 +329,32 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="dp-display text-3xl font-bold text-zinc-900">Dashboard</h1>
-            <p className="mt-1 text-sm text-zinc-500">
-              Create a quote → share link → client pays your Stripe.
-            </p>
-          </div>
-          {!loading && quotes.length > 0 && (
-            <div className="flex gap-4 text-sm">
-              <div className="dp-glass rounded-2xl px-4 py-2">
-                <span className="text-zinc-500">Quotes</span>{" "}
-                <strong className="text-zinc-900">{quotes.length}</strong>
-              </div>
-              <div className="dp-glass rounded-2xl px-4 py-2">
-                <span className="text-zinc-500">Paid</span>{" "}
-                <strong className="text-emerald-400">{paidCount}</strong>
-              </div>
+        <div className="relative mb-10 overflow-hidden rounded-[1.6rem]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/photos/carpentry.jpg"
+            alt=""
+            className="h-40 w-full object-cover sm:h-52"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/25" />
+          <div className="absolute bottom-5 left-6 right-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="dp-display text-3xl text-white sm:text-4xl">Your jobs</h1>
+              <p className="mt-1 text-sm text-white/75">
+                Create a quote → share the link → they pay your Stripe.
+              </p>
             </div>
-          )}
+            {!loading && quotes.length > 0 && (
+              <div className="flex gap-3 text-sm text-white">
+                <div className="rounded-full bg-white/15 px-4 py-1.5 backdrop-blur">
+                  Quotes <strong>{quotes.length}</strong>
+                </div>
+                <div className="rounded-full bg-emerald-500/80 px-4 py-1.5">
+                  Paid <strong>{paidCount}</strong>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {emailFlash && (
@@ -359,17 +366,23 @@ export default function DashboardPage() {
         {loading ? (
           <div className="mt-16 text-center text-sm text-zinc-600">Loading…</div>
         ) : quotes.length === 0 ? (
-          <div className="dp-glass mt-12 rounded-3xl border-dashed p-14 text-center">
-            <p className="dp-display text-xl font-bold text-zinc-900">No quotes yet</p>
-            <p className="mx-auto mt-2 max-w-sm text-sm text-zinc-500">
-              Connect Stripe, then create a professional quote in under a minute.
-            </p>
-            <Link
-              href="/dashboard/new"
-              className="dp-btn-primary mt-8 inline-flex"
-            >
-              Create your first quote →
-            </Link>
+          <div className="relative mt-4 overflow-hidden rounded-[1.6rem]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/photos/kitchen-done.jpg"
+              alt=""
+              className="h-56 w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/45" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
+              <p className="dp-display text-3xl">No quotes yet</p>
+              <p className="mt-2 max-w-sm text-sm text-white/80">
+                Connect Stripe, then send your first quote. The job starts when they pay.
+              </p>
+              <Link href="/dashboard/new" className="dp-btn-primary mt-6 !bg-white !text-black">
+                Create your first quote →
+              </Link>
+            </div>
           </div>
         ) : (
           <ul className="mt-10 space-y-3">

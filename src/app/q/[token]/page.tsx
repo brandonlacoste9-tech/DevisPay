@@ -112,8 +112,11 @@ export default function PublicQuotePage({
 
   if (error && !data) {
     return (
-      <div className="dp-mesh flex min-h-screen items-center justify-center text-zinc-500">
-        {error}
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden text-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/photos/kitchen.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-black/60" />
+        <p className="relative z-10">{error}</p>
       </div>
     );
   }
@@ -143,11 +146,17 @@ export default function PublicQuotePage({
     Math.max(0, quote.totalCents - quote.depositAmountCents);
 
   return (
-    <div className="dp-mesh dp-noise relative min-h-screen px-4 py-10 text-zinc-900">
-      <div className="pointer-events-none absolute inset-0 dp-grid opacity-30" />
+    <div className="relative min-h-screen overflow-hidden px-4 py-10 text-zinc-900">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/photos/kitchen.jpg"
+        alt=""
+        className="dp-kenburns pointer-events-none absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-black/55" />
       <div className="relative z-10 mx-auto max-w-md">
-        <p className="text-center text-[10px] font-bold uppercase tracking-[0.32em] text-zinc-500">
-          Devis<span className="text-amber-400">Pay</span>
+        <p className="text-center text-[10px] font-bold uppercase tracking-[0.32em] text-white/70">
+          Devis<span className="text-amber-300">Pay</span>
         </p>
 
         <article className="dp-invoice mt-6 overflow-hidden rounded-[1.6rem]">
@@ -343,7 +352,7 @@ export default function PublicQuotePage({
           </div>
         </article>
 
-        <p className="mt-8 text-center text-[10px] tracking-wide text-zinc-600">
+        <p className="mt-8 text-center text-[10px] tracking-wide text-white/55">
           {fr
             ? "Paiement sécurisé · Pas un compte bancaire d'escrow"
             : "Secure payment · Not a bank escrow account"}
