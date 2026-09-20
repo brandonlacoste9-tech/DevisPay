@@ -36,7 +36,7 @@ pnpm dev
 
 1. Register → create quote  
 2. Copy `/q/[token]`  
-3. Customer pays card **or** seller opens `?seller=1` → Mark paid  
+3. Customer pays by card **or** you open the quote from the dashboard (logged in) → **Mark paid** (Interac / bank)  
 
 ## Features (global MVP)
 

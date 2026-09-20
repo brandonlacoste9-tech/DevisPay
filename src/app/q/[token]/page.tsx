@@ -58,6 +58,13 @@ export default function PublicQuotePage({
       const q = new URLSearchParams(window.location.search);
       setJustPaid(q.get("paid") === "1");
       setSellerMode(q.get("seller") === "1");
+      if (q.get("seller") === "1") {
+        void fetch("/api/account")
+          .then((r) => {
+            if (!r.ok) setSellerMode(false);
+          })
+          .catch(() => setSellerMode(false));
+      }
     }
     void load();
   }, [token]);

@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { usePostgres, getSql, normalizeDatabaseUrl } from "@/lib/db";
+import { getSession } from "@/lib/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** Public diagnostics — no secrets. */
+function publicOk(ok: boolean, dbOk: boolean | null) {
+  return NextResponse.json({ ok, dbOk });
+}
+
+/** Public: { ok, dbOk } only. Full diagnostics require a logged-in session. */
 export async function GET() {
   const hasDb = usePostgres();
   let dbOk: boolean | null = null;
@@ -15,14 +20,27 @@ export async function GET() {
     try {
       const sql = getSql();
       await sql`select 1 as ok`;
-      const rows = (await sql`
-        select tablename from pg_tables where schemaname = 'public' order by 1
-      `) as { tablename: string }[];
-      tables = rows.map((r) => r.tablename);
       dbOk = true;
     } catch (e) {
       dbOk = false;
       dbError = e instanceof Error ? e.message : "unknown";
+    }
+  }
+
+  const session = await getSession();
+  if (!session) {
+    return publicOk(hasDb ? dbOk === true : true, dbOk);
+  }
+
+  if (hasDb && dbOk) {
+    try {
+      const sql = getSql();
+      const rows = (await sql`
+        select tablename from pg_tables where schemaname = 'public' order by 1
+      `) as { tablename: string }[];
+      tables = rows.map((r) => r.tablename);
+    } catch {
+      /* ignore table list */
     }
   }
 
