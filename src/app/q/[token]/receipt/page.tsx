@@ -3,6 +3,8 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { money } from "@/lib/money";
+import { ShareQuote } from "@/components/ShareQuote";
+import { quoteShareText } from "@/lib/share";
 
 type ReceiptPayload = {
   quote: {
@@ -54,7 +56,7 @@ export default function ReceiptPage({
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white text-zinc-500">
+      <div className="flex min-h-screen items-center justify-center bg-[#f4efe6] text-zinc-500">
         {error}
       </div>
     );
@@ -62,7 +64,7 @@ export default function ReceiptPage({
 
   if (!data) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white text-zinc-400">
+      <div className="flex min-h-screen items-center justify-center bg-[#f4efe6] text-zinc-400">
         …
       </div>
     );
@@ -77,172 +79,165 @@ export default function ReceiptPage({
     quote.remainingBalanceCents ??
     Math.max(0, quote.totalCents - quote.depositAmountCents);
   const receiptId = `DP-${quote.id.slice(0, 8).toUpperCase()}`;
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "https://devispay.com";
+  const receiptUrl = `${origin}/q/${token}/receipt`;
 
   return (
-    <div className="min-h-screen bg-zinc-100 text-zinc-900 print:bg-white">
-      <div className="mx-auto max-w-2xl px-4 py-8 print:py-0">
+    <div className="min-h-screen bg-[#f4efe6] text-[#1a1612] print:bg-white">
+      <div className="mx-auto max-w-md px-4 py-8 print:max-w-none print:px-0 print:py-0">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
-          <Link href={`/q/${token}`} className="text-sm text-zinc-500 hover:text-zinc-800">
+          <Link href={`/q/${token}`} className="text-sm text-zinc-600 hover:text-zinc-900">
             ← {fr ? "Retour au devis" : "Back to quote"}
           </Link>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="rounded-full bg-zinc-900 px-5 py-2 text-sm font-bold text-white hover:bg-zinc-800"
-          >
-            {fr ? "Imprimer / PDF" : "Print / Save PDF"}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="dp-btn-primary !px-4 !py-2 text-xs"
+            >
+              {fr ? "Imprimer / PDF" : "Print / Save PDF"}
+            </button>
+            {isPaid && (
+              <ShareQuote
+                url={receiptUrl}
+                title={fr ? "Reçu d'acompte" : "Deposit receipt"}
+                text={
+                  fr
+                    ? `Reçu — ${quote.title}\nAcompte ${money(quote.depositAmountCents, cur, loc)} reçu.\n${receiptUrl}`
+                    : quoteShareText({
+                        title: `Receipt — ${quote.title}`,
+                        depositCents: quote.depositAmountCents,
+                        currency: cur,
+                        url: receiptUrl,
+                      })
+                }
+              />
+            )}
+          </div>
         </div>
 
-        <article className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-zinc-200 print:shadow-none print:ring-0 sm:p-10">
-          {!isPaid && (
-            <p className="mb-6 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-              {fr
-                ? "Acompte non confirmé — ce document n'est pas un reçu de paiement."
-                : "Deposit not confirmed — this is not a payment receipt."}
-            </p>
-          )}
+        <article className="dp-invoice overflow-hidden rounded-[1.4rem] print:rounded-none print:shadow-none">
+          <div className="dp-invoice-rule print:h-2" />
+          <div className="p-7 sm:p-8">
+            {!isPaid && (
+              <p className="mb-5 rounded-lg bg-amber-100 px-3 py-2 text-sm text-amber-900">
+                {fr
+                  ? "Acompte non confirmé — pas un reçu de paiement."
+                  : "Deposit not confirmed — not a payment receipt."}
+              </p>
+            )}
 
-          <header className="flex items-start justify-between gap-4 border-b border-zinc-100 pb-6">
-            <div className="flex items-center gap-3">
-              {business.logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={business.logoUrl}
-                  alt=""
-                  className="h-14 w-14 rounded-xl object-cover"
-                />
-              ) : (
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-zinc-900 text-xl font-black text-amber-400">
-                  {business.name.charAt(0).toUpperCase()}
+            <header className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {business.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={business.logoUrl}
+                    alt=""
+                    className="h-12 w-12 rounded-xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1a1612] text-lg font-black text-amber-400">
+                    {business.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <p className="font-semibold">{business.name}</p>
+                  {business.phone && (
+                    <p className="text-xs text-[#6b6258]">{business.phone}</p>
+                  )}
                 </div>
-              )}
-              <div>
-                <p className="text-lg font-bold">{business.name}</p>
-                {business.email && (
-                  <p className="text-sm text-zinc-500">{business.email}</p>
-                )}
-                {business.phone && (
-                  <p className="text-sm text-zinc-500">{business.phone}</p>
-                )}
               </div>
-            </div>
-            <div className="text-right text-sm">
-              <p className="font-bold uppercase tracking-wider text-zinc-400">
-                {isPaid
-                  ? fr
-                    ? "Reçu d'acompte"
-                    : "Deposit receipt"
-                  : fr
-                    ? "Devis"
-                    : "Quote"}
-              </p>
-              <p className="mt-1 font-mono text-xs text-zinc-500">{receiptId}</p>
-            </div>
-          </header>
+              {isPaid ? (
+                <span className="dp-stamp">{fr ? "Payé" : "Paid"}</span>
+              ) : (
+                <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase text-amber-900">
+                  {fr ? "Dû" : "Due"}
+                </span>
+              )}
+            </header>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                {fr ? "Client" : "Bill to"}
-              </p>
-              <p className="mt-1 font-semibold">{quote.customerName}</p>
-              {quote.customerEmail && (
-                <p className="text-sm text-zinc-500">{quote.customerEmail}</p>
-              )}
-            </div>
-            <div className="sm:text-right">
-              <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                {fr ? "Projet" : "Project"}
-              </p>
-              <p className="mt-1 font-semibold">{quote.title}</p>
-              {quote.paidAt && (
-                <p className="text-sm text-zinc-500">
-                  {fr ? "Payé le " : "Paid "}
-                  {new Date(quote.paidAt).toLocaleString(loc)}
-                </p>
-              )}
-              {quote.paidVia && (
-                <p className="text-sm text-zinc-500">
-                  {fr ? "Via " : "Via "}
-                  {quote.paidVia === "manual"
-                    ? fr
-                      ? "virement / Interac"
-                      : "bank / Interac"
-                    : fr
-                      ? "carte"
-                      : "card"}
-                </p>
-              )}
+            <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-800/70">
+              {isPaid
+                ? fr
+                  ? "Reçu d'acompte"
+                  : "Deposit receipt"
+                : fr
+                  ? "Devis"
+                  : "Quote"}{" "}
+              · {receiptId}
+            </p>
+            <h1 className="dp-display mt-2 text-2xl">{quote.title}</h1>
+            <p className="mt-1 text-sm text-[#6b6258]">
+              {fr ? "Pour" : "For"} {quote.customerName}
+            </p>
+
+            <ul className="mt-6 space-y-3 border-t border-[#1a1612]/10 pt-5 text-sm">
+              {quote.items.map((it, i) => (
+                <li key={i} className="flex justify-between gap-3">
+                  <span>
+                    {it.description}
+                    <span className="text-[#9a8f82]"> × {it.quantity}</span>
+                  </span>
+                  <span className="tabular-nums">
+                    {money(Math.round(it.quantity * it.unitPriceCents), cur, loc)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-5 space-y-2 border-t border-[#1a1612]/10 pt-5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-[#6b6258]">{fr ? "Total du projet" : "Project total"}</span>
+                <span className="font-semibold tabular-nums">
+                  {money(quote.totalCents, cur, loc)}
+                </span>
+              </div>
             </div>
           </div>
 
-          <table className="mt-8 w-full text-sm">
-            <thead>
-              <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wider text-zinc-400">
-                <th className="pb-2 font-bold">{fr ? "Description" : "Description"}</th>
-                <th className="pb-2 text-right font-bold">{fr ? "Qté" : "Qty"}</th>
-                <th className="pb-2 text-right font-bold">{fr ? "Montant" : "Amount"}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {quote.items.map((it, i) => (
-                <tr key={i} className="border-b border-zinc-50">
-                  <td className="py-3">{it.description}</td>
-                  <td className="py-3 text-right tabular-nums text-zinc-500">
-                    {it.quantity}
-                  </td>
-                  <td className="py-3 text-right tabular-nums">
-                    {money(Math.round(it.quantity * it.unitPriceCents), cur, loc)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="mt-6 space-y-2 border-t border-zinc-200 pt-4 text-sm">
-            <div className="flex justify-between">
-              <span className="text-zinc-500">{fr ? "Total du projet" : "Project total"}</span>
-              <span className="font-semibold tabular-nums">
-                {money(quote.totalCents, cur, loc)}
-              </span>
-            </div>
-            <div className="flex justify-between text-base">
-              <span className="font-bold">
-                {isPaid
+          <div className="dp-due px-7 py-5 print:break-inside-avoid sm:px-8">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-400/80">
+              {isPaid
+                ? fr
+                  ? "Acompte reçu"
+                  : "Deposit received"
+                : fr
+                  ? "À payer"
+                  : "Due now"}
+              {quote.depositPercent != null ? ` · ${quote.depositPercent}%` : ""}
+            </p>
+            <p className="dp-display mt-1 text-3xl tabular-nums">
+              {money(quote.depositAmountCents, cur, loc)}
+            </p>
+            {isPaid && (
+              <p className="mt-2 text-xs text-white/70">
+                {quote.paidVia === "manual"
                   ? fr
-                    ? "Acompte reçu"
-                    : "Deposit received"
+                    ? "Virement / Interac"
+                    : "Bank / Interac"
                   : fr
-                    ? "Acompte dû"
-                    : "Deposit due"}
-                {quote.depositPercent != null ? ` (${quote.depositPercent}%)` : ""}
-              </span>
-              <span className="font-black tabular-nums">
-                {money(quote.depositAmountCents, cur, loc)}
-              </span>
-            </div>
+                    ? "Carte"
+                    : "Card"}
+                {quote.paidAt
+                  ? ` · ${new Date(quote.paidAt).toLocaleString(loc)}`
+                  : ""}
+              </p>
+            )}
             {remaining > 0 && (
-              <div className="flex justify-between text-zinc-600">
-                <span>{fr ? "Solde restant" : "Remaining balance"}</span>
-                <span className="tabular-nums">{money(remaining, cur, loc)}</span>
-              </div>
+              <p className="mt-3 text-sm text-white/80">
+                {fr ? "Solde restant : " : "Balance left on the job: "}
+                <strong className="text-white">{money(remaining, cur, loc)}</strong>
+              </p>
             )}
           </div>
 
-          {quote.notes && (
-            <p className="mt-6 whitespace-pre-wrap text-xs text-zinc-500">
-              {quote.notes}
-            </p>
-          )}
-
-          <footer className="mt-10 border-t border-zinc-100 pt-4 text-center text-[10px] text-zinc-400">
+          <p className="px-7 py-4 text-center text-[10px] text-[#6b6258] print:px-8">
             {fr
-              ? "Document généré par DevisPay · Paiement sur devis · Pas un compte d'escrow bancaire"
-              : "Generated by DevisPay · Pay on quote · Not a bank escrow account"}
-            {" · "}
-            devispay.com
-          </footer>
+              ? "Pour le dossier du chantier · Pas un compte d'escrow · devispay.com"
+              : "For the job folder · Not a bank escrow · devispay.com"}
+          </p>
         </article>
       </div>
     </div>

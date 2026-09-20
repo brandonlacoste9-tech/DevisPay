@@ -3,6 +3,8 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { money } from "@/lib/money";
+import { ShareQuote } from "@/components/ShareQuote";
+import { quotePayUrl, quoteShareText } from "@/lib/share";
 
 type QuotePayload = {
   quote: {
@@ -343,6 +345,26 @@ export default function PublicQuotePage({
                         : "Mark deposit received (seller)"}
                   </button>
                 )}
+                <div className="pt-2">
+                  <p className="mb-2 text-center text-[10px] uppercase tracking-wider text-white/50">
+                    {fr ? "Envoyer à la maison" : "Forward this bill"}
+                  </p>
+                  <div className="flex justify-center">
+                    <ShareQuote
+                      tone="dark"
+                      url={quotePayUrl(token)}
+                      title={quote.title}
+                      text={quoteShareText({
+                        title: quote.title,
+                        customerName: quote.customerName,
+                        depositCents: quote.depositAmountCents,
+                        currency: cur,
+                        lang: fr ? "fr" : "en",
+                        url: quotePayUrl(token),
+                      })}
+                    />
+                  </div>
+                </div>
               </div>
             )}
 

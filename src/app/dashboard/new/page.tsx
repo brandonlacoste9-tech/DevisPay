@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CURRENCIES } from "@/lib/money";
 import { BrandMark } from "@/components/BrandMark";
+import { ShareQuote } from "@/components/ShareQuote";
+import { quoteShareText } from "@/lib/share";
 
 type Item = { description: string; quantity: number; unitPrice: number };
 
@@ -239,6 +241,20 @@ export default function NewQuotePage() {
           >
             Copy link
           </button>
+          <div className="mt-4 flex justify-center">
+            <ShareQuote
+              url={payUrl}
+              title={title}
+              text={quoteShareText({
+                title,
+                customerName,
+                depositCents: Math.round(deposit * 100),
+                currency,
+                lang,
+                url: payUrl,
+              })}
+            />
+          </div>
           <button
             type="button"
             disabled={emailing || !quoteToken}

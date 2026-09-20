@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { money } from "@/lib/money";
 import { BrandMark } from "@/components/BrandMark";
+import { ShareQuote } from "@/components/ShareQuote";
+import { quotePayUrl, quoteShareText } from "@/lib/share";
 
 type QuoteRow = {
   id: string;
@@ -469,10 +471,23 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={() => copyLink(q.publicToken)}
-                      className="dp-btn-primary !px-3 !py-2 text-xs"
+                      className="dp-btn-ghost !px-3 !py-2 text-xs"
                     >
-                      {copied === q.publicToken ? "Copied!" : "Copy link"}
+                      {copied === q.publicToken ? "Copied!" : "Copy"}
                     </button>
+                    {!paid && (
+                      <ShareQuote
+                        url={quotePayUrl(q.publicToken)}
+                        text={quoteShareText({
+                          title: q.title,
+                          customerName: q.customerName,
+                          depositCents: q.depositAmountCents,
+                          currency: q.currency,
+                          url: quotePayUrl(q.publicToken),
+                        })}
+                        title={q.title}
+                      />
+                    )}
                   </div>
                 </li>
               );

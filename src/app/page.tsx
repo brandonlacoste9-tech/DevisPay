@@ -241,9 +241,9 @@ export default function HomePage() {
                 {fr ? "Créer mon compte" : "Create free account"}
                 <span aria-hidden>→</span>
               </Link>
-              <a href="#how" className="rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white/90 backdrop-blur hover:bg-white/10">
-                {fr ? "Voir comment" : "See how it works"}
-              </a>
+              <Link href="/q/demo" className="rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white/90 backdrop-blur hover:bg-white/10">
+                {fr ? "Ouvrir un devis exemple" : "Open a sample quote"}
+              </Link>
             </div>
           </div>
 
