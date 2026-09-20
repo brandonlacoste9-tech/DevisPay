@@ -83,6 +83,9 @@ export const metadata: Metadata = {
       "fr-CA": "https://devispay.com/entrepreneurs",
     },
   },
+  verification: {
+    google: "jAv6ZcC0zCzW8JgpzWH6LUyUCrYDp4-v0ECxRLdbcOU",
+  },
   robots: {
     index: true,
     follow: true,
